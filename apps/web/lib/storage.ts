@@ -51,12 +51,12 @@ export type BetType = {
 }
 
 // Export persistent storage as the main storage (backward compatible)
-export const users = persistentUsers as any
-export const markets = persistentMarkets as any
-export const bets = persistentBets as any
+export const users = persistentUsers
+export const markets = persistentMarkets
+export const bets = persistentBets
 
 // FOMO Markets - now using persistent storage instead of in-memory Map
-export const fomoMarkets = persistentFomoMarkets as any
+export const fomoMarkets = persistentFomoMarkets
 
 console.log('🚀 Using persistent file-based storage')
 console.log(`📊 Loaded: ${users.size} users, ${markets.size} markets, ${bets.size} bets, ${fomoMarkets.size} FOMO markets`)
