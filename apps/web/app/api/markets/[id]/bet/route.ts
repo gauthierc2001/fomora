@@ -42,7 +42,7 @@ export async function POST(
       
       if (marketId.includes('meme') || marketId.includes('doge')) {
         for (const [id, marketData] of allMarkets) {
-          if (id.includes('doge') && marketData.question.toLowerCase().includes('dogecoin')) {
+          if (id.includes('doge') && (marketData as any).question.toLowerCase().includes('dogecoin')) {
             console.log(`Found Dogecoin market: ${id}`)
             market = marketData
             break
@@ -50,7 +50,7 @@ export async function POST(
         }
       } else if (marketId.includes('pepe')) {
         for (const [id, marketData] of allMarkets) {
-          if (id.includes('pepe') && marketData.question.toLowerCase().includes('pepe')) {
+          if (id.includes('pepe') && (marketData as any).question.toLowerCase().includes('pepe')) {
             console.log(`Found Pepe market: ${id}`)
             market = marketData
             break
@@ -58,7 +58,7 @@ export async function POST(
         }
       } else if (marketId.includes('shib')) {
         for (const [id, marketData] of allMarkets) {
-          if (id.includes('shib') && marketData.question.toLowerCase().includes('shiba')) {
+          if (id.includes('shib') && (marketData as any).question.toLowerCase().includes('shiba')) {
             console.log(`Found Shiba market: ${id}`)
             market = marketData
             break

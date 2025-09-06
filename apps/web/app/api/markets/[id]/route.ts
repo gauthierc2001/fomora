@@ -21,7 +21,7 @@ export async function GET(
       if (id.includes('meme') || id.includes('doge')) {
         // Look for Dogecoin market
         for (const [marketId, marketData] of allMarkets) {
-          if (marketId.includes('doge') && marketData.question.toLowerCase().includes('dogecoin')) {
+          if (marketId.includes('doge') && (marketData as any).question.toLowerCase().includes('dogecoin')) {
             console.log(`Redirecting to new Dogecoin market: ${marketId}`)
             market = marketData
             break
@@ -30,7 +30,7 @@ export async function GET(
       } else if (id.includes('pepe')) {
         // Look for Pepe market
         for (const [marketId, marketData] of allMarkets) {
-          if (marketId.includes('pepe') && marketData.question.toLowerCase().includes('pepe')) {
+          if (marketId.includes('pepe') && (marketData as any).question.toLowerCase().includes('pepe')) {
             console.log(`Redirecting to new Pepe market: ${marketId}`)
             market = marketData
             break
@@ -39,7 +39,7 @@ export async function GET(
       } else if (id.includes('shib')) {
         // Look for Shiba market
         for (const [marketId, marketData] of allMarkets) {
-          if (marketId.includes('shib') && marketData.question.toLowerCase().includes('shiba')) {
+          if (marketId.includes('shib') && (marketData as any).question.toLowerCase().includes('shiba')) {
             console.log(`Redirecting to new Shiba market: ${marketId}`)
             market = marketData
             break

@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Check user's market creation limit (3 max)
-    const userMarkets = Array.from(markets.values()).filter(m => m.createdBy === user.id || m.createdBy === user.walletAddress)
+    const userMarkets = Array.from(markets.values()).filter((m: any) => m.createdBy === user.id || m.createdBy === user.walletAddress)
     if (userMarkets.length >= 3) {
       return NextResponse.json({ error: 'Maximum 3 markets allowed per user' }, { status: 400 })
     }
@@ -137,24 +137,24 @@ export async function GET(request: NextRequest) {
     
     // Apply filters
     if (category) {
-      allMarkets = allMarkets.filter(market => market.category === category)
+      allMarkets = allMarkets.filter((market: any) => market.category === category)
       console.log(`After category filter: ${allMarkets.length} markets`)
     }
     
     if (status) {
-      allMarkets = allMarkets.filter(market => market.status === status)
+      allMarkets = allMarkets.filter((market: any) => market.status === status)
     }
     
     if (search) {
       const searchLower = search.toLowerCase()
-      allMarkets = allMarkets.filter(market => 
+      allMarkets = allMarkets.filter((market: any) => 
         market.question.toLowerCase().includes(searchLower) ||
         (market.description && market.description.toLowerCase().includes(searchLower))
       )
     }
     
     // Sort by creation date (newest first)
-    allMarkets.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    allMarkets.sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime())
     
     // Apply pagination
     const paginatedMarkets = allMarkets.slice(skip, skip + limitNum)

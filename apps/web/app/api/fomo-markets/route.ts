@@ -28,24 +28,24 @@ export async function GET(request: NextRequest) {
     
     // Apply filters
     if (category) {
-      allMarkets = allMarkets.filter(market => market.category === category)
+      allMarkets = allMarkets.filter((market: any) => market.category === category)
       console.log(`After category filter: ${allMarkets.length} FOMO markets`)
     }
     
     if (status) {
-      allMarkets = allMarkets.filter(market => market.status === status)
+      allMarkets = allMarkets.filter((market: any) => market.status === status)
     }
     
     if (search) {
       const searchLower = search.toLowerCase()
-      allMarkets = allMarkets.filter(market => 
+      allMarkets = allMarkets.filter((market: any) => 
         market.question.toLowerCase().includes(searchLower) ||
         (market.description && market.description.toLowerCase().includes(searchLower))
       )
     }
     
     // Sort by creation date (newest first)
-    allMarkets.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    allMarkets.sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime())
     
     // Apply pagination
     const paginatedMarkets = allMarkets.slice(skip, skip + limitNum)
