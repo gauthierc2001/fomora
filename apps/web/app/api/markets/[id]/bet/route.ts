@@ -38,7 +38,7 @@ export async function POST(
       console.log(`Market ${marketId} not found, searching for similar markets...`)
       
       // Search in both regular markets and FOMO markets
-      const allMarkets = [...markets.entries(), ...fomoMarkets.entries()]
+      const allMarkets = Array.from(markets.entries()).concat(Array.from(fomoMarkets.entries()))
       
       if (marketId.includes('meme') || marketId.includes('doge')) {
         for (const [id, marketData] of allMarkets) {
