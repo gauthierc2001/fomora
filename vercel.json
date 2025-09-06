@@ -1,7 +1,7 @@
 {
   "version": 2,
   "installCommand": "pnpm install --no-frozen-lockfile",
-  "buildCommand": "pnpm db:generate && cd apps/web && pnpm vercel-build",
+  "buildCommand": "./deploy-build.sh",
   "outputDirectory": "apps/web/.next",
   "functions": {
     "apps/web/app/api/**/*.ts": {
