@@ -76,7 +76,7 @@ export async function POST(
       }
 
       // Update user in storage
-      for (const [walletAddress, userData] of users) {
+      for (const [walletAddress, userData] of Array.from(users.entries())) {
         if (userData.id === user.id) {
           users.set(walletAddress, user)
           break
