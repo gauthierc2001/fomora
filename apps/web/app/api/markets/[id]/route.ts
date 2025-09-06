@@ -16,7 +16,7 @@ export async function GET(
       
       // Try to find a market with similar content based on ID pattern
       // Search in both regular markets and FOMO markets
-      const allMarkets = [...markets.entries(), ...fomoMarkets.entries()]
+      const allMarkets = Array.from(markets.entries()).concat(Array.from(fomoMarkets.entries()))
       
       if (id.includes('meme') || id.includes('doge')) {
         // Look for Dogecoin market
