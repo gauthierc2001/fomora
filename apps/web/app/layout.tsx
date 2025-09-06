@@ -1,19 +1,20 @@
 import type { Metadata } from 'next'
-import { Inter, Outfit } from 'next/font/google'
+// import { Inter, Outfit } from 'next/font/google'
 import { Providers } from '@/components/providers'
 import '@/styles/globals.css'
 import '@solana/wallet-adapter-react-ui/styles.css'
 import '@/lib/console-filter' // Filter out wallet noise
 
-const inter = Inter({ 
-  subsets: ['latin'],
-  variable: '--font-inter'
-})
+// Use system fonts as fallback for build reliability
+const inter = {
+  variable: '--font-inter',
+  className: ''
+}
 
-const outfit = Outfit({ 
-  subsets: ['latin'],
-  variable: '--font-outfit'
-})
+const outfit = {
+  variable: '--font-outfit', 
+  className: ''
+}
 
 export const metadata: Metadata = {
   title: 'Fomora - Bet on the Internet',
