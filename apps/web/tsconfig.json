@@ -29,6 +29,8 @@
     "strict": false,
     "noImplicitAny": false,
     "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "noImplicitReturns": false,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
