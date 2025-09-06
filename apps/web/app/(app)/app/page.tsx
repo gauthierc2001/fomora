@@ -177,18 +177,6 @@ export default function MarketsPage() {
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start gap-4">
                     <div className="flex gap-3 flex-1">
-                      {market.image && (
-                        <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                          <img 
-                            src={market.image} 
-                            alt={market.question} 
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none'
-                            }}
-                          />
-                        </div>
-                      )}
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <Badge className={getStatusColor(market.status)}>

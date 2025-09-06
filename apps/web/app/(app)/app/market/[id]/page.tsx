@@ -226,19 +226,6 @@ export default function MarketPage({ params }: MarketPageProps) {
                 </div>
               </div>
             </div>
-            
-            {market.image && (
-              <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
-                <img 
-                  src={market.image} 
-                  alt={market.question} 
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none'
-                  }}
-                />
-              </div>
-            )}
           </div>
         </CardHeader>
       </Card>
