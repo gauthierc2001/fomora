@@ -41,9 +41,9 @@ export async function POST(
 
     // Update market status
     market.status = 'RESOLVED' as any
-    market.outcome = outcome
-    market.resolvedAt = new Date()
-    if (reason) market.resolutionReason = reason
+    ;(market as any).outcome = outcome
+    ;(market as any).resolvedAt = new Date()
+    if (reason) (market as any).resolutionReason = reason
 
     // Find all bets for this market
     const marketBets = Array.from(bets.values()).filter(bet => bet.marketId === marketId)

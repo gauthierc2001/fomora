@@ -84,7 +84,7 @@ export async function POST(
     if (now >= closingTime) {
       console.log(`Market has closed at ${closingTime}, current time: ${now}`)
       // Auto-close expired markets
-      market.status = 'CLOSED'
+      market.status = 'CLOSED' as any
       if (fomoMarkets.has(market.id)) {
         fomoMarkets.set(market.id, market)
       } else {
