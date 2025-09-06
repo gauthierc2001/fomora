@@ -51,13 +51,13 @@ export async function GET(request: NextRequest) {
     const paginatedMarkets = allMarkets.slice(skip, skip + limitNum)
     
     // Format markets with creator info and bet count
-    const formattedMarkets = paginatedMarkets.map(market => ({
-      ...market,
+    const formattedMarkets = paginatedMarkets.map((market: any) => ({
+      ...(market as any),
       creator: {
         walletAddress: market.createdBy === 'fomo-system' ? 'FOMO System' : market.createdBy
       },
       _count: {
-        bets: Array.from(bets.values()).filter(bet => bet.marketId === market.id).length
+        bets: Array.from(bets.values()).filter((bet: any) => bet.marketId === market.id).length
       }
     }))
     
