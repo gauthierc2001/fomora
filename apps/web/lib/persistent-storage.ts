@@ -53,8 +53,22 @@ export interface Bet {
   createdAt: Date
 }
 
+// Interface for persistent storage
+export interface IPersistentStorage<T> {
+  get(key: string): T | undefined
+  set(key: string, value: T): void
+  delete(key: string): boolean
+  has(key: string): boolean
+  keys(): IterableIterator<string>
+  values(): IterableIterator<T>
+  entries(): IterableIterator<[string, T]>
+  readonly size: number
+  clear(): void
+  getAll(): Map<string, T>
+}
+
 // Persistent storage class
-class PersistentStorage<T> {
+class PersistentStorage<T> implements IPersistentStorage<T> {
   private filePath: string
   private cache: Map<string, T> = new Map()
   private loaded = false
