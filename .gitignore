@@ -29,7 +29,7 @@ Thumbs.db
 
 # Storage (persistent data files)
 .storage/
-*.json
+storage.json
 
 # Logs
 *.log
