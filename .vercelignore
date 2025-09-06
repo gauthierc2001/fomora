@@ -1,8 +1,15 @@
-turbo.json
+# Turbo-related files
 .turbo/
 node_modules/.pnpm/.turbo/
+
+# Build artifacts
 fomo-v1/
+build.sh
+
+# Windows scripts
 *.cmd
 *.bat
 *.ps1
-build.sh
+
+# Development files
+.env.example
