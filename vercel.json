@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd apps/web && pnpm build",
-  "installCommand": "pnpm install --no-frozen-lockfile --no-verify-store-integrity",
+  "installCommand": "pnpm install --no-frozen-lockfile",
+  "buildCommand": "pnpm build --filter=@fomora/web",
   "outputDirectory": "apps/web/.next"
 }
