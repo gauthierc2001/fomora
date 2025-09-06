@@ -1,0 +1,76 @@
+FOMORA LOCAL SETUP - COMPLETE INSTRUCTIONS
+
+=== STEP 1: PREPARE ENVIRONMENT FILE ===
+
+1. Copy the environment file:
+   copy env.example .env
+
+2. Edit .env file and update these TWO lines:
+
+   DATABASE_URL="postgresql://postgres:YOUR_ACTUAL_PASSWORD@db.klucdodkixhvbwahprev.supabase.co:5432/postgres"
+   
+   Replace YOUR_ACTUAL_PASSWORD with your Supabase database password.
+
+   JWT_SECRET="your-secure-32-character-secret-key-here"
+   
+   Replace with any 32+ character string (letters, numbers, symbols).
+
+=== STEP 2: RUN SETUP ===
+
+Option A - Use the batch file (Recommended):
+   run-local.bat
+
+Option B - Manual commands:
+   pnpm install
+   pnpm db:generate
+   pnpm db:push
+   pnpm db:seed
+   pnpm dev
+
+=== STEP 3: ACCESS APP ===
+
+Open browser: http://localhost:8000
+
+=== WHAT TO EXPECT ===
+
+✅ Landing page with "Enter App" button
+✅ Wallet connection (Phantom/Solflare/Backpack)
+✅ 10,000 points credited automatically
+✅ 15 prediction markets to browse and bet on
+✅ Create your own markets (100 points fee)
+✅ Real-time leaderboard
+✅ 48-hour countdown timer
+
+=== TROUBLESHOOTING ===
+
+❌ Database connection error:
+   → Check your DATABASE_URL has correct password
+
+❌ JWT error:
+   → Make sure JWT_SECRET is at least 32 characters
+
+❌ Port 8000 in use:
+   → Close other apps using port 8000
+
+❌ Wallet won't connect:
+   → Install Phantom, Solflare, or Backpack browser extension
+
+=== CREATE ADMIN USER (OPTIONAL) ===
+
+After app is running:
+   npx tsx scripts/setup-admin.ts YOUR_SOLANA_WALLET_ADDRESS
+
+Replace YOUR_SOLANA_WALLET_ADDRESS with your actual wallet public key.
+
+=== TESTING CHECKLIST ===
+
+□ Connect wallet successfully
+□ Receive 10,000 points 
+□ Browse markets page
+□ Place a bet (minimum 50 points)
+□ Create a market (costs 100 points)
+□ Check leaderboard
+□ View "My Activity" page
+□ Test admin panel (if admin user created)
+
+Your Fomora prediction market is ready! 🎯

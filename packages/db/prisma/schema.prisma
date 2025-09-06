@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum MarketStatus {
+  OPEN
+  CLOSED
+  RESOLVED
+  CANCELLED
+}
+
+enum BetSide {
+  YES
+  NO
+}
+
+enum Resolution {
+  YES
+  NO
+  CANCELLED
+}
+
+enum ActionType {
+  CONNECT
+  CREDITS
+  CREATE_MARKET
+  BET
+  RESOLVE
+  CANCEL
+  LOGIN
+  ADMIN_ACTION
+}
+
+model User {
+  id              String   @id @default(cuid())
+  walletAddress   String   @unique
+  createdAt       DateTime @default(now())
+  lastSeenAt      DateTime @default(now())
+  ipHash          String?
+  pointsBalance   Int      @default(0)
+  creditedInitial Boolean  @default(false)
+  role            Role     @default(USER)
+
+  // Relations
+  marketsCreated Market[]
+  bets           Bet[]
+  actionLogs     ActionLog[]
+
+  @@map("users")
+}
+
+model Market {
+  id          String       @id @default(cuid())
+  slug        String       @unique
+  question    String
+  description String?
+  category    String?
+  createdBy   String
+  status      MarketStatus @default(OPEN)
+  closesAt    DateTime
+  createdAt   DateTime     @default(now())
+  resolvedAt  DateTime?
+  resolution  Resolution?
+  yesPool     Int          @default(0)
+  noPool      Int          @default(0)
+  createFee   Int          @default(100)
+  txRef       String?
+
+  // Relations
+  creator User @relation(fields: [createdBy], references: [id])
+  bets    Bet[]
+
+  @@map("markets")
+}
+
+model Bet {
+  id        String   @id @default(cuid())
+  marketId  String
+  userId    String
+  side      BetSide
+  amount    Int
+  fee       Int
+  createdAt DateTime @default(now())
+
+  // Relations
+  market Market @relation(fields: [marketId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("bets")
+}
+
+model ActionLog {
+  id        String     @id @default(cuid())
+  userId    String?
+  type      ActionType
+  metadata  Json?
+  ipHash    String?
+  createdAt DateTime   @default(now())
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("action_logs")
+}
+
+model Config {
+  key   String @id
+  value Json
+
+  @@map("config")
+}
