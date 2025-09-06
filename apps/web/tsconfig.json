@@ -31,7 +31,6 @@
     "strictNullChecks": false,
     "strictFunctionTypes": false,
     "noImplicitReturns": false,
-    "suppressImplicitAnyIndexErrors": true,
     "noImplicitThis": false,
     "noEmit": true,
     "esModuleInterop": true,
