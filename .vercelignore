@@ -1,0 +1,8 @@
+turbo.json
+.turbo/
+node_modules/.pnpm/.turbo/
+fomo-v1/
+*.cmd
+*.bat
+*.ps1
+build.sh
