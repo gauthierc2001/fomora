@@ -40,7 +40,7 @@ export async function POST(
     console.log(`Resolving market ${marketId} with outcome: ${outcome}`)
 
     // Update market status
-    market.status = 'RESOLVED'
+    market.status = 'RESOLVED' as any
     market.outcome = outcome
     market.resolvedAt = new Date()
     if (reason) market.resolutionReason = reason
