@@ -16,18 +16,13 @@ export async function GET(request: NextRequest) {
         pointsBalance: { gt: 0 } // Only users with remaining points
       },
       include: {
-        _count: {
-          select: {
-            bets: true,
-            marketsCreated: true
-          }
-        },
         bets: {
           select: {
             amount: true,
             marketId: true
           }
-        }
+        },
+        markets: true
       },
       orderBy: {
         pointsBalance: 'desc'
@@ -43,9 +38,9 @@ export async function GET(request: NextRequest) {
         rank: index + 1,
         walletAddress: user.walletAddress,
         finalBalance: user.pointsBalance,
-        totalBets: user._count.bets,
+        totalBets: user.totalBets,
         totalWagered,
-        marketsCreated: user._count.marketsCreated,
+        marketsCreated: user.marketsCreated,
         marketsParticipated: uniqueMarkets,
         joinedAt: user.createdAt.toISOString(),
         lastActive: user.lastSeenAt.toISOString()
