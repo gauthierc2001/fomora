@@ -139,9 +139,9 @@ export async function POST(
     const penaltyFee = Math.floor(amount * 0.01)
     const netAmount = amount - penaltyFee
 
-    // Create bet ID
-    // Let Prisma generate the unique ID automatically
-    // const betId = `bet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    // Create bet ID - use timestamp + random string to ensure uniqueness
+    const betId = `bet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    console.log('Generated bet ID:', betId)
 
     // We already determined if it's a FOMO market above
     step = 'preparing transaction'
@@ -200,6 +200,7 @@ export async function POST(
         
         const newBet = await tx.bet.create({
           data: {
+            id: betId,
             userId: user.id,
             marketId: actualMarketId,
             side: side,
