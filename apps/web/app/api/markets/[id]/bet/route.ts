@@ -78,10 +78,11 @@ export async function POST(
               description: market.description,
               category: market.category,
               createdBy: market.createdBy || 'fomo-system',
-              status: market.status,
+              status: market.status === 'OPEN' ? 'OPEN' : 'CLOSED', // Convert string to MarketStatus enum
               closesAt: market.closesAt,
               yesPool: market.yesPool,
               noPool: market.noPool,
+              createFee: 0, // FOMO markets don't have creation fees
               // image: market.image // Removed to fix schema mismatch
             }
           })
@@ -187,20 +188,38 @@ export async function POST(
         // Update market
         let updatedMarket
         if (isFomoMarket) {
-          const updateData: any = {
+          const fomoUpdateData: any = {
             totalVolume: { increment: netAmount },
             participants: { increment: 1 }
           }
           if (side === 'YES') {
-            updateData.yesPool = { increment: netAmount }
+            fomoUpdateData.yesPool = { increment: netAmount }
           } else {
-            updateData.noPool = { increment: netAmount }
+            fomoUpdateData.noPool = { increment: netAmount }
           }
           
+          // Update the FOMO market
           updatedMarket = await (tx as any).fomoMarket.update({
             where: { id: market.id },
-            data: updateData
+            data: fomoUpdateData
           })
+          
+          // Also update the corresponding Market table for consistency
+          const marketUpdateData: any = {}
+          if (side === 'YES') {
+            marketUpdateData.yesPool = { increment: netAmount }
+          } else {
+            marketUpdateData.noPool = { increment: netAmount }
+          }
+          
+          try {
+            await tx.market.update({
+              where: { id: market.id },
+              data: marketUpdateData
+            })
+          } catch (error) {
+            console.log('No corresponding Market entry found for FOMO market - this is expected')
+          }
         } else {
           const updateData: any = {}
           if (side === 'YES') {
@@ -256,7 +275,23 @@ export async function POST(
       }
       
       if (isFomoMarket) {
+        // For FOMO markets, update both the FOMO market cache AND the regular market cache
         await fomoMarkets.set(market.id, updatedMarketData)
+        
+        // Also update the corresponding Market entry cache if it exists
+        try {
+          const correspondingMarket = await prisma.market.findUnique({ where: { id: market.id } })
+          if (correspondingMarket) {
+            const correspondingMarketData = {
+              ...correspondingMarket,
+              yesPool: updatedMarket.yesPool,
+              noPool: updatedMarket.noPool
+            }
+            await markets.set(market.id, correspondingMarketData)
+          }
+        } catch (error) {
+          console.error('Failed to update corresponding Market cache:', error)
+        }
       } else {
         await markets.set(market.id, updatedMarketData)
       }
