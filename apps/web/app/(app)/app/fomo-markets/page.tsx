@@ -41,9 +41,6 @@ export default function FomoMarketsPage() {
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['fomo-markets', { search, category, page }],
-    refetchInterval: 3000,
-    refetchIntervalInBackground: true,
-    staleTime: 0,
     queryFn: async (): Promise<MarketsResponse> => {
       const params = new URLSearchParams({
         page: page.toString(),

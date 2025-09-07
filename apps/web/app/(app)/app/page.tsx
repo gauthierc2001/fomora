@@ -41,9 +41,6 @@ export default function MarketsPage() {
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['markets', { search, category, page }],
-    refetchInterval: 5000,
-    refetchIntervalInBackground: true,
-    staleTime: 0,
     queryFn: async (): Promise<MarketsResponse> => {
       const params = new URLSearchParams({
         page: page.toString(),
