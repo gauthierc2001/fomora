@@ -124,13 +124,6 @@ model ActionLog {
   @@map("action_logs")
 }
 
-model Config {
-  key   String @id
-  value Json
-
-  @@map("config")
-}
-
 model FomoMarket {
   id          String   @id @default(cuid())
   question    String

@@ -8,13 +8,19 @@ export interface TestWindow {
 
 export async function getTestWindow(): Promise<TestWindow | null> {
   try {
-    const config = await prisma.config.findUnique({
-      where: { key: 'TEST_WINDOW' }
-    })
+    const startTime = process.env.TEST_START_ISO
+    const hours = parseInt(process.env.TEST_HOURS || '48')
     
-    if (!config) return null
+    if (!startTime) return null
     
-    return config.value as TestWindow
+    const start = new Date(startTime)
+    const end = new Date(start.getTime() + hours * 60 * 60 * 1000)
+    
+    return {
+      startTime: start.toISOString(),
+      endTime: end.toISOString(),
+      durationHours: hours
+    }
   } catch {
     return null
   }
