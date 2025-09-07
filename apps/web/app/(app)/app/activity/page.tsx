@@ -13,7 +13,9 @@ export default function ActivityPage() {
       const response = await fetch('/api/me')
       if (!response.ok) throw new Error('Not authenticated')
       return response.json()
-    }
+    },
+    refetchInterval: 5000, // Refetch every 5 seconds
+    refetchIntervalInBackground: true
   })
 
   const { data: userMarkets } = useQuery({
@@ -22,8 +24,12 @@ export default function ActivityPage() {
       const response = await fetch('/api/markets?limit=100')
       if (!response.ok) throw new Error('Failed to fetch markets')
       const data = await response.json()
-      return data.markets.filter((m: any) => m.createdBy !== 'system')
-    }
+      return data.markets
+        .filter((m: any) => m.createdBy !== 'system')
+        .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    },
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true
   })
 
   const { data: userBetsData } = useQuery({
@@ -31,8 +37,16 @@ export default function ActivityPage() {
     queryFn: async () => {
       const response = await fetch('/api/user-bets')
       if (!response.ok) throw new Error('Failed to fetch user bets')
-      return response.json()
-    }
+      const data = await response.json()
+      return {
+        ...data,
+        bets: (data.bets || []).sort((a: any, b: any) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+      }
+    },
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true
   })
 
   const userBets = userBetsData?.bets || []

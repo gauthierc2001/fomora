@@ -98,27 +98,63 @@ export async function POST(
     user.totalWagered = Math.max(0, user.totalWagered - bet.amount)
 
     // Update market pools (ensure they never go negative)
+    const netAmount = bet.amount - bet.fee // Original bet minus fee
     if (bet.side === 'YES') {
-      market.yesPool = Math.max(0, market.yesPool - bet.amount)
+      market.yesPool = Math.max(0, market.yesPool - netAmount)
     } else {
-      market.noPool = Math.max(0, market.noPool - bet.amount)
+      market.noPool = Math.max(0, market.noPool - netAmount)
     }
 
-    // Save changes
-    await users.set(session.walletAddress, user)
-    
-    // Save to correct market storage
-    const isFomoMarket = await fomoMarkets.has(market.id)
-    if (isFomoMarket) {
-      await fomoMarkets.set(market.id, market)
-    } else {
-      await markets.set(market.id, market)
+    // Save all changes in a transaction
+    try {
+      await prisma.$transaction(async (tx) => {
+        // Update user
+        await tx.user.update({
+          where: { walletAddress: session.walletAddress },
+          data: {
+            pointsBalance: user.pointsBalance,
+            totalBets: user.totalBets,
+            totalWagered: user.totalWagered
+          }
+        })
+
+        // Update market
+        if (await fomoMarkets.has(market.id)) {
+          await tx.fomoMarket.update({
+            where: { id: market.id },
+            data: {
+              yesPool: market.yesPool,
+              noPool: market.noPool,
+              totalVolume: market.yesPool + market.noPool
+            }
+          })
+        } else {
+          await tx.market.update({
+            where: { id: market.id },
+            data: {
+              yesPool: market.yesPool,
+              noPool: market.noPool
+            }
+          })
+        }
+
+        // Delete bet
+        await tx.bet.delete({
+          where: { id: betId }
+        })
+      })
+
+      // Update in-memory storage after successful transaction
+      await users.set(session.walletAddress, user)
+      if (await fomoMarkets.has(market.id)) {
+        await fomoMarkets.set(market.id, market)
+      } else {
+        await markets.set(market.id, market)
+      }
+    } catch (error) {
+      console.error('Transaction failed:', error)
+      throw new Error('Failed to process withdrawal')
     }
-    
-    // Remove bet from storage
-    await prisma.bet.delete({
-      where: { id: betId }
-    })
 
     console.log(`✅ Bet withdrawn: ${refundAmount} points refunded (${penalty} penalty)`)
     console.log('=== WITHDRAW BET API END ===')

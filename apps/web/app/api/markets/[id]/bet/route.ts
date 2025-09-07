@@ -160,21 +160,67 @@ export async function POST(
       market.noPool = Math.max(0, market.noPool + netAmount)
     }
 
-    // Save all changes atomically
+    // Save all changes in a transaction
     try {
-      users.set(session.walletAddress, currentUser)
-      
-      // Check if it's a FOMO market or regular market and save to correct storage
-      if (fomoMarkets.has(market.id)) {
-        fomoMarkets.set(market.id, market)
+      await prisma.$transaction(async (tx) => {
+        // Update user
+        await tx.user.update({
+          where: { walletAddress: session.walletAddress },
+          data: {
+            pointsBalance: currentUser.pointsBalance,
+            totalBets: currentUser.totalBets,
+            totalWagered: currentUser.totalWagered
+          }
+        })
+
+        // Update market
+        if (await fomoMarkets.has(market.id)) {
+          await tx.fomoMarket.update({
+            where: { id: market.id },
+            data: {
+              yesPool: market.yesPool,
+              noPool: market.noPool,
+              totalVolume: market.yesPool + market.noPool,
+              participants: {
+                increment: 1
+              }
+            }
+          })
+        } else {
+          await tx.market.update({
+            where: { id: market.id },
+            data: {
+              yesPool: market.yesPool,
+              noPool: market.noPool
+            }
+          })
+        }
+
+        // Create bet
+        await tx.bet.create({
+          data: {
+            id: betId,
+            userId: currentUser.id,
+            marketId: market.id,
+            side: side,
+            amount: amount,
+            fee: penaltyFee,
+            createdAt: new Date()
+          }
+        })
+      })
+
+      // Update in-memory storage after successful transaction
+      await users.set(session.walletAddress, currentUser)
+      if (await fomoMarkets.has(market.id)) {
+        await fomoMarkets.set(market.id, market)
       } else {
-        markets.set(market.id, market)
+        await markets.set(market.id, market)
       }
-      
-      bets.set(betId, bet)
+      await bets.set(betId, bet)
     } catch (error) {
-      // Rollback on any save error
-      console.error('Save error, rolling back:', error)
+      // Rollback memory state on transaction error
+      console.error('Transaction failed:', error)
       currentUser.pointsBalance += amount
       currentUser.totalBets = Math.max(0, currentUser.totalBets - 1)
       currentUser.totalWagered = Math.max(0, currentUser.totalWagered - amount)
@@ -183,7 +229,7 @@ export async function POST(
       } else {
         market.noPool = Math.max(0, market.noPool - netAmount)
       }
-      throw error
+      throw new Error('Failed to process bet')
     }
     console.log(`Bet stored with ID: ${betId}`)
     console.log(`Total bets in storage: ${bets.size}`)

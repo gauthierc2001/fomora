@@ -187,12 +187,13 @@ export default function MarketPage({ params }: MarketPageProps) {
         return 'Invalid date'
       }
       
-      return target.toLocaleString('fr-FR', {
+      return target.toLocaleString('en-US', {
         year: 'numeric',
-        month: 'long',
+        month: 'short',
         day: 'numeric',
-        hour: '2-digit',
+        hour: 'numeric',
         minute: '2-digit',
+        hour12: true,
         timeZone: 'UTC'
       })
     } catch (error) {
