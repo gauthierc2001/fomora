@@ -289,13 +289,23 @@ export async function POST(
       console.log(`Market pools after update - YES: ${updatedMarket.yesPool}, NO: ${updatedMarket.noPool}`)
       console.log(`Is FOMO market: ${isFomoMarket}`)
 
+      // Small delay to ensure database changes are committed
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      // Verify the pools are correctly updated by reading from database
+      const verifyMarket = isFomoMarket 
+        ? await (prisma as any).fomoMarket.findUnique({ where: { id: market.id } })
+        : await prisma.market.findUnique({ where: { id: market.id } })
+      
+      console.log(`✅ Verification - Database pools after bet: YES: ${verifyMarket?.yesPool}, NO: ${verifyMarket?.noPool}`)
+
       return NextResponse.json({
         success: true,
         betId: newBet.id,
         newBalance: updatedUser.pointsBalance,
         marketPools: {
-          yesPool: updatedMarket.yesPool,
-          noPool: updatedMarket.noPool
+          yesPool: verifyMarket?.yesPool || updatedMarket.yesPool,
+          noPool: verifyMarket?.noPool || updatedMarket.noPool
         },
         penaltyFee,
         netAmount

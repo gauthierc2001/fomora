@@ -132,6 +132,12 @@ export async function GET(request: NextRequest) {
     // Get all markets from database storage
     let allMarkets = await markets.values()
     console.log(`Total markets in storage: ${allMarkets.length}`)
+    console.log(`First few markets:`, allMarkets.slice(0, 3).map(m => ({
+      id: m.id,
+      question: m.question.substring(0, 50),
+      yesPool: m.yesPool,
+      noPool: m.noPool
+    })))
     console.log(`Filtering by category: "${category || 'none'}"`)
     
     // Apply filters

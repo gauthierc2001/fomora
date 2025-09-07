@@ -8,8 +8,19 @@ export async function GET(
 ) {
   try {
     const { id } = await params
+    console.log(`🔍 Fetching market: ${id}`)
+    
     // Check both regular markets and FOMO markets
-    let market = markets.get(id) || fomoMarkets.get(id)
+    let market = await markets.get(id) || await fomoMarkets.get(id)
+    
+    if (market) {
+      console.log(`✅ Found market ${id}:`, {
+        question: market.question,
+        yesPool: market.yesPool,
+        noPool: market.noPool,
+        status: market.status
+      })
+    }
     
     // If market not found and it looks like an old-style ID, try to find by question similarity
     if (!market && id.includes('_')) {

@@ -15,14 +15,25 @@ let priceCache: {
 const symbolToId: Record<string, string> = {
   'BTC': 'bitcoin',
   'ETH': 'ethereum',
+  'SOL': 'solana',
   'DOGE': 'dogecoin',
   'PEPE': 'pepe',
   'SHIB': 'shiba-inu',
-  'SOL': 'solana',
+  'FLOKI': 'floki',
+  'BONK': 'bonk',
+  'WIF': 'dogwifcoin',
+  'POPCAT': 'popcat',
+  'GOAT': 'goatseus-maximus',
+  'PNUT': 'peanut-the-squirrel',
+  'BRETT': 'based-brett',
+  'MEW': 'cat-in-a-dogs-world',
+  'MOODENG': 'moo-deng',
   'XRP': 'ripple',
   'ADA': 'cardano',
   'AVAX': 'avalanche-2',
-  'MATIC': 'matic-network'
+  'MATIC': 'matic-network',
+  'LINK': 'chainlink',
+  'UNI': 'uniswap'
 }
 
 const symbolSchema = z.object({
@@ -41,8 +52,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(priceCache.prices)
     }
 
-    // Default symbols if none provided
-    const defaultSymbols = ['BTC', 'ETH', 'DOGE', 'PEPE', 'SHIB']
+    // Default symbols if none provided - include major coins and popular memecoins
+    const defaultSymbols = ['BTC', 'ETH', 'SOL', 'DOGE', 'PEPE', 'SHIB', 'WIF', 'BONK', 'POPCAT', 'PNUT']
     const symbolsToFetch = symbols || defaultSymbols
 
     // Convert symbols to CoinGecko IDs

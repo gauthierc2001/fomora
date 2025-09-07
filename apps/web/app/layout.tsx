@@ -3,6 +3,7 @@ import { Providers } from '@/components/providers'
 import '@/styles/globals.css'
 import '@solana/wallet-adapter-react-ui/styles.css'
 import '@/lib/console-filter' // Filter out wallet noise
+import '@/lib/fomo-scheduler' // Initialize FOMO market rotation
 
 export const metadata: Metadata = {
   title: 'Fomora - Bet on the Internet',

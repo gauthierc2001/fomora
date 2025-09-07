@@ -76,6 +76,42 @@ export async function getMarketImage(marketQuestion: string, marketDescription: 
   if (text.includes('solana') || text.includes(' sol ')) {
     return getCryptoImage('solana')
   }
+  if (text.includes('dogecoin') || text.includes(' doge ')) {
+    return getCryptoImage('dogecoin')
+  }
+  if (text.includes('pepe') || text.includes('🐸')) {
+    return getCryptoImage('pepe')
+  }
+  if (text.includes('shiba') || text.includes(' shib ')) {
+    return getCryptoImage('shiba-inu')
+  }
+  if (text.includes('floki')) {
+    return getCryptoImage('floki')
+  }
+  if (text.includes('bonk')) {
+    return getCryptoImage('bonk')
+  }
+  if (text.includes('dogwifhat') || text.includes(' wif ')) {
+    return getCryptoImage('dogwifcoin')
+  }
+  if (text.includes('popcat') || text.includes('🐱')) {
+    return getCryptoImage('popcat')
+  }
+  if (text.includes('goat') || text.includes('goatseus')) {
+    return getCryptoImage('goatseus-maximus')
+  }
+  if (text.includes('peanut') || text.includes(' pnut ') || text.includes('🥜')) {
+    return getCryptoImage('peanut-the-squirrel')
+  }
+  if (text.includes('brett') || text.includes('based-brett')) {
+    return getCryptoImage('based-brett')
+  }
+  if (text.includes('mew') || text.includes('cat in') || text.includes('dogs world')) {
+    return getCryptoImage('cat-in-a-dogs-world')
+  }
+  if (text.includes('moo deng') || text.includes('moodeng')) {
+    return getCryptoImage('moo-deng')
+  }
   if (text.includes('xrp') || text.includes('ripple')) {
     return getCryptoImage('ripple')
   }
