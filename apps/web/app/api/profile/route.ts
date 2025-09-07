@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSessionFromRequest } from '@/lib/auth'
 import { users } from '@/lib/storage'
+import { prisma } from '@fomora/db'
 
 const updateProfileSchema = z.object({
   displayName: z.string().min(1).max(30).optional(),
