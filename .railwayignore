@@ -1,0 +1,6 @@
+# Railway ignore file
+node_modules/
+.git/
+*.log
+.env*
+!.env.example
