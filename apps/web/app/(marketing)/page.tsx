@@ -170,7 +170,7 @@ export default function LandingPage() {
                 top: '-80px',
               }}
               animate={{
-                y: [0, 1000],
+                y: [0, window?.innerHeight ? window.innerHeight + 120 : 1000],
                 rotate: [0, 360],
                 x: [0, Math.sin(i * 0.5) * 30],
                 opacity: [0, 0.6, 0.4, 0],

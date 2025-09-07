@@ -6,9 +6,6 @@ import { getSessionFromRequest } from '@/lib/auth'
 import { createSlug } from '@/lib/utils'
 import { markets, bets, users } from '@/lib/storage'
 
-// Force dynamic rendering for this API route
-export const dynamic = 'force-dynamic'
-
 // Create deterministic market ID for user markets
 function createUserMarketId(question: string, userId: string): string {
   const hash = createHash('sha256').update(question + userId + 'user').digest('hex').slice(0, 12)
