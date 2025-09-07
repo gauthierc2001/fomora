@@ -50,10 +50,46 @@ export async function POST(
     
     console.log('Market found:', !!market)
     console.log('Is FOMO market:', isFomoMarket)
+    console.log('Market ID from request:', marketId)
+    console.log('Market ID from database:', market?.id)
     
     if (!market) {
       console.log(`Market ${marketId} not found in database`)
       return NextResponse.json({ error: 'Market not found' }, { status: 404 })
+    }
+
+    // For FOMO markets, we need to create a corresponding entry in the Market table for betting
+    let actualMarketId = market.id
+    if (isFomoMarket) {
+      console.log('FOMO market detected, checking for corresponding Market entry...')
+      
+      // Check if a corresponding Market entry exists
+      const correspondingMarket = await prisma.market.findUnique({ where: { id: marketId } })
+      if (!correspondingMarket) {
+        // Create a corresponding Market entry for the FOMO market
+        console.log('Creating corresponding Market entry for FOMO market...')
+        try {
+          await prisma.market.create({
+            data: {
+              id: market.id,
+              slug: market.slug || market.id,
+              question: market.question,
+              description: market.description,
+              category: market.category,
+              createdBy: market.createdBy || 'fomo-system',
+              status: market.status,
+              closesAt: market.closesAt,
+              yesPool: market.yesPool,
+              noPool: market.noPool,
+              image: market.image
+            }
+          })
+          console.log('Successfully created corresponding Market entry')
+        } catch (error) {
+          console.error('Failed to create corresponding Market entry:', error)
+          // If it already exists, continue anyway
+        }
+      }
     }
 
     // Validate market status
@@ -152,12 +188,22 @@ export async function POST(
           })
         }
 
-        // Create bet
+        // Create bet (always references the Market table, even for FOMO markets)
+        console.log('Creating bet with:', {
+          betId,
+          userId: user.id,
+          marketId: actualMarketId,
+          side,
+          amount,
+          fee: penaltyFee,
+          marketType: isFomoMarket ? 'FOMO' : 'REGULAR'
+        })
+        
         const newBet = await tx.bet.create({
           data: {
             id: betId,
             userId: user.id,
-            marketId: market.id,
+            marketId: actualMarketId,
             side: side,
             amount: amount,
             fee: penaltyFee,
