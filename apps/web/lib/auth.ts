@@ -24,7 +24,7 @@ export async function createSession(user: SessionUser) {
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('24h')
-    .sign(secret)
+    .sign(getJWTSecret())
 
   const isProduction = process.env.NODE_ENV === 'production'
   const cookieOptions = {
@@ -47,7 +47,7 @@ export async function getSession(): Promise<SessionUser | null> {
   if (!token) return null
 
   try {
-    const { payload } = await jwtVerify(token, secret)
+    const { payload } = await jwtVerify(token, getJWTSecret())
     return payload.user as SessionUser
   } catch {
     return null
