@@ -59,7 +59,7 @@ export async function getSessionFromRequest(request: NextRequest): Promise<Sessi
   if (!token) return null
 
   try {
-    const { payload } = await jwtVerify(token, secret)
+    const { payload } = await jwtVerify(token, getJWTSecret())
     return payload.user as SessionUser
   } catch {
     return null
