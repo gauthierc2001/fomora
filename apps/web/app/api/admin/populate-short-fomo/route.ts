@@ -3,13 +3,21 @@ import { populateShortFomoMarkets } from '../../../scripts/populate-short-fomo-m
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🚀 Populating short-term FOMO markets...')
+    console.log('🚀 Populating short-term FOMO markets with live CoinGecko data...')
     
-    const result = await populateShortFomoMarkets()
+    // Check if we should clear existing markets
+    const body = await request.json().catch(() => ({}))
+    const clearExisting = body.clearExisting === true
+    
+    if (clearExisting) {
+      console.log('🧹 Clearing existing short-term markets first...')
+    }
+    
+    const result = await populateShortFomoMarkets(clearExisting)
     
     return NextResponse.json({
       success: true,
-      message: 'Short-term FOMO markets created successfully',
+      message: 'Short-term FOMO markets created successfully with live CoinGecko prices',
       result,
       timestamp: new Date().toISOString()
     })
