@@ -484,6 +484,11 @@ export const fomoMarkets = {
   async forEach(callback: (value: any, key: string) => void): Promise<void> {
     const fomoMarkets = await this.values()
     fomoMarkets.forEach(fomoMarket => callback(fomoMarket, fomoMarket.id))
+  },
+
+  async entries(): Promise<[string, any][]> {
+    const fomoMarkets = await this.values()
+    return fomoMarkets.map(market => [market.id, market])
   }
 }
 

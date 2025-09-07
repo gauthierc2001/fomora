@@ -10,7 +10,7 @@ const placeBetSchema = z.object({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     console.log('=== PLACE BET API START ===')
@@ -38,7 +38,9 @@ export async function POST(
       console.log(`Market ${marketId} not found, searching for similar markets...`)
       
       // Search in both regular markets and FOMO markets
-      const allMarkets = [...markets.entries(), ...fomoMarkets.entries()]
+      const regularMarkets = await markets.entries()
+      const fomoMarkets = await fomoMarkets.entries()
+      const allMarkets = [...regularMarkets, ...fomoMarkets]
       
       if (marketId.includes('meme') || marketId.includes('doge')) {
         for (const [id, marketData] of allMarkets) {
