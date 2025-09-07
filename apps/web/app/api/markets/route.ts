@@ -64,8 +64,8 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ Parsed closing date:', closingDate.toISOString())
     
-    // Get user from in-memory storage
-    const user = users.get(session.id) || users.get(session.walletAddress)
+    // Get user from database storage
+    const user = await users.get(session.walletAddress)
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
@@ -75,7 +75,8 @@ export async function POST(request: NextRequest) {
     }
     
     // Check user's market creation limit (3 max)
-    const userMarkets = Array.from(markets.values()).filter(m => m.createdBy === user.id || m.createdBy === user.walletAddress)
+    const allMarkets = await markets.values()
+    const userMarkets = allMarkets.filter(m => m.createdBy === user.id || m.createdBy === user.walletAddress)
     if (userMarkets.length >= 3) {
       return NextResponse.json({ error: 'Maximum 3 markets allowed per user' }, { status: 400 })
     }
@@ -104,8 +105,8 @@ export async function POST(request: NextRequest) {
     user.marketsCreated += 1
     
     // Save user and market to persistent storage
-    users.set(session.walletAddress, user)
-    markets.set(marketId, market)
+    await users.set(session.walletAddress, user)
+    await markets.set(marketId, market)
     
     console.log(`✅ Market created: ${market.id} by ${user.id} (fee: 100 points)`)
     

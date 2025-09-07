@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
 import { formatPoints, formatOdds } from '@/lib/utils'
-import { Search, TrendingUp, Clock, Users } from 'lucide-react'
+import { Search, TrendingUp, Clock, Users, RefreshCw, Coins } from 'lucide-react'
 
 interface Market {
   id: string
@@ -38,6 +38,21 @@ export default function MarketsPage() {
   const [category, setCategory] = useState('')
   const [page, setPage] = useState(1)
   const [hasInitialized, setHasInitialized] = useState(false)
+
+  const populateLiveMarketsMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/populate-live-markets', { method: 'POST' })
+      if (!response.ok) throw new Error('Failed to populate live markets')
+      return response.json()
+    },
+    onSuccess: (data) => {
+      console.log('✅ Live markets populated:', data)
+      refetch()
+    },
+    onError: (error) => {
+      console.error('❌ Failed to populate live markets:', error)
+    }
+  })
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['markets', { search, category, page }],
@@ -112,9 +127,24 @@ export default function MarketsPage() {
           </p>
         </div>
         
-        <Button asChild>
-          <Link href="/app/create">Create Market</Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => populateLiveMarketsMutation.mutate()}
+            disabled={populateLiveMarketsMutation.isPending}
+            className="flex items-center gap-2"
+          >
+            {populateLiveMarketsMutation.isPending ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <Coins className="h-4 w-4" />
+            )}
+            {populateLiveMarketsMutation.isPending ? 'Loading...' : 'Populate Live Markets'}
+          </Button>
+          <Button asChild>
+            <Link href="/app/create">Create Market</Link>
+          </Button>
+        </div>
       </div>
 
       {/* Search and Filters */}
