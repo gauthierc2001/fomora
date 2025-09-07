@@ -30,6 +30,10 @@ Thumbs.db
 # Storage (persistent data files)
 .storage/
 *.json
+!vercel.json
+!package.json
+!package-lock.json
+!tsconfig.json
 
 # Logs
 *.log
