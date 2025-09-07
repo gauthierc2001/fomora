@@ -139,80 +139,97 @@ export async function POST(
     const penaltyFee = Math.floor(amount * 0.01)
     const netAmount = amount - penaltyFee
 
-    // Create bet ID - use timestamp + random string to ensure uniqueness
-    const betId = `bet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    console.log('Generated bet ID:', betId)
-
     // We already determined if it's a FOMO market above
     step = 'preparing transaction'
 
-    // Process bet in transaction
+    // Process bet in transaction with retry mechanism for ID conflicts
     step = 'starting transaction'
-    try {
-      const [updatedUser, updatedMarket, newBet] = await prisma.$transaction(async (tx) => {
-        // Update user
-        const updatedUser = await tx.user.update({
-          where: { id: user.id },
-          data: {
-            pointsBalance: { decrement: amount }
-          } as any
-        })
-
-        // Update market
-        let updatedMarket
-        if (isFomoMarket) {
-          const updateData: any = {
-            totalVolume: { increment: netAmount },
-            participants: { increment: 1 }
-          }
-          if (side === 'YES') {
-            updateData.yesPool = { increment: netAmount }
-          } else {
-            updateData.noPool = { increment: netAmount }
-          }
-          
-          updatedMarket = await (tx as any).fomoMarket.update({
-            where: { id: market.id },
-            data: updateData
+    
+    // Function to attempt bet creation with automatic ID generation
+    const attemptBetCreation = async (retryCount = 0): Promise<[any, any, any]> => {
+      const maxRetries = 3
+      
+      try {
+        return await prisma.$transaction(async (tx) => {
+          // Update user
+          const updatedUser = await tx.user.update({
+            where: { id: user.id },
+            data: {
+              pointsBalance: { decrement: amount }
+            } as any
           })
-        } else {
-          const updateData: any = {}
-          if (side === 'YES') {
-            updateData.yesPool = { increment: netAmount }
-          } else {
-            updateData.noPool = { increment: netAmount }
-          }
-          
-          updatedMarket = await tx.market.update({
-            where: { id: market.id },
-            data: updateData
-          })
-        }
 
-        // Create bet (always references the Market table, even for FOMO markets)
-        console.log('Creating bet with:', {
-          userId: user.id,
-          marketId: actualMarketId,
-          side,
-          amount,
-          fee: penaltyFee
-        })
-        
-        const newBet = await tx.bet.create({
-          data: {
-            id: betId,
+          // Update market
+          let updatedMarket
+          if (isFomoMarket) {
+            const updateData: any = {
+              totalVolume: { increment: netAmount },
+              participants: { increment: 1 }
+            }
+            if (side === 'YES') {
+              updateData.yesPool = { increment: netAmount }
+            } else {
+              updateData.noPool = { increment: netAmount }
+            }
+            
+            updatedMarket = await (tx as any).fomoMarket.update({
+              where: { id: market.id },
+              data: updateData
+            })
+          } else {
+            const updateData: any = {}
+            if (side === 'YES') {
+              updateData.yesPool = { increment: netAmount }
+            } else {
+              updateData.noPool = { increment: netAmount }
+            }
+            
+            updatedMarket = await tx.market.update({
+              where: { id: market.id },
+              data: updateData
+            })
+          }
+
+          // Create bet with auto-generated ID (let Prisma handle uniqueness)
+          console.log('Creating bet with:', {
             userId: user.id,
             marketId: actualMarketId,
-            side: side,
-            amount: amount,
-            fee: penaltyFee,
-            // marketType: isFomoMarket ? 'FOMO' : 'REGULAR', // Temporarily removed until schema is deployed
-            createdAt: new Date()
-          }
-        })
+            side,
+            amount,
+            fee: penaltyFee
+          })
+          
+          const newBet = await tx.bet.create({
+            data: {
+              userId: user.id,
+              marketId: actualMarketId,
+              side: side,
+              amount: amount,
+              fee: penaltyFee,
+              // marketType: isFomoMarket ? 'FOMO' : 'REGULAR', // Temporarily removed until schema is deployed
+              createdAt: new Date()
+            }
+          })
 
-        return [updatedUser, updatedMarket, newBet]
-      })
+          return [updatedUser, updatedMarket, newBet]
+        })
+      } catch (error) {
+        // Check if it's a unique constraint error on the ID field
+        if (error instanceof Error && 
+            error.message.includes('Unique constraint failed') && 
+            error.message.includes('id') && 
+            retryCount < maxRetries) {
+          console.log(`Bet ID conflict detected, retrying... (attempt ${retryCount + 1}/${maxRetries})`)
+          // Wait a small random amount before retrying to reduce collision probability
+          await new Promise(resolve => setTimeout(resolve, Math.random() * 100 + 50))
+          return attemptBetCreation(retryCount + 1)
+        }
+        throw error
+      }
+    }
+
+    try {
+      const [updatedUser, updatedMarket, newBet] = await attemptBetCreation()
 
       // Update memory state with transaction results
       const updatedUserData = {
