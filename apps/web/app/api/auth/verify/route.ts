@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     // No database required - just in-memory storage for demo
     const ipHash = hashIP(getClientIP(request))
     
-    let user = users.get(walletAddress)
+    let user = await users.get(walletAddress)
     
     if (!user) {
       user = {
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
         totalWagered: 0,
         marketsCreated: 0
       }
-      users.set(walletAddress, user)
+      await users.set(walletAddress, user)
       console.log('Created new user:', walletAddress.slice(0, 8) + '...')
     } else {
       console.log('Found existing user:', walletAddress.slice(0, 8) + '...')

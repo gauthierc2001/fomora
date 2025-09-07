@@ -18,17 +18,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
     
-    // Find user by wallet address in memory
-    let user = null
-    for (const [walletAddress, userData] of users.entries()) {
-      if (userData.id === session.id) {
-        user = userData
-        break
-      }
-    }
+    // Find user by wallet address in database
+    const user = await users.get(session.walletAddress)
     
     if (!user) {
-      console.log('User not found in memory storage')
+      console.log('User not found in database')
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
     
