@@ -1,0 +1,21 @@
+# Production Environment Variables for Vercel
+# Copy these to Vercel Dashboard → Settings → Environment Variables
+
+# Database (Supabase) - ALREADY CONFIGURED
+DATABASE_URL="postgresql://postgres:h9iD9ejrgh*#vAv@db.klucdodkixhvbwahprev.supabase.co:5432/postgres"
+
+# JWT Secret for session management - ALREADY CONFIGURED
+JWT_SECRET="FoMoRa2025PredictionMarketJWTSecretKey48HourTestBetOnInternet"
+
+# Test Configuration - ALREADY CONFIGURED
+TEST_START_ISO="2025-01-15T12:00:00.000Z"
+TEST_HOURS="48"
+
+# Solana Network (devnet for testing) - ALREADY CONFIGURED
+NEXT_PUBLIC_SOLANA_NETWORK="devnet"
+
+# App URLs - UPDATE THESE AFTER DEPLOYMENT
+NEXTAUTH_URL="https://your-app-name.vercel.app"
+NEXT_PUBLIC_APP_URL="https://your-app-name.vercel.app"
+
+# Note: Replace "your-app-name" with your actual Vercel deployment URL
