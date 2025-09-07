@@ -13,8 +13,8 @@ export const prisma =
         url: process.env.DATABASE_URL
       }
     },
-    // Add connection pool configuration
-    connection: {
+    // Configure connection pool settings
+    _engineConfig: {
       pool: {
         min: 0,
         max: 8,
