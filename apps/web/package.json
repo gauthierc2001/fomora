@@ -9,7 +9,10 @@
     "start": "next start --port ${PORT:-3000}",
     "lint": "next lint",
     "test": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "launch-reset": "tsx scripts/launch-reset-cli.ts",
+    "launch-reset:dry-run": "tsx scripts/launch-reset.ts --dry-run",
+    "launch-reset:quick": "tsx scripts/launch-reset.ts"
   },
   "dependencies": {
     "@fomora/db": "workspace:*",
