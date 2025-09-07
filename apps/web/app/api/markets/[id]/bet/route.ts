@@ -267,34 +267,10 @@ export async function POST(
       }
       await users.set(session.walletAddress, updatedUserData)
       
-      // Update market data with new pools
-      const updatedMarketData = {
-        ...market,
-        yesPool: updatedMarket.yesPool,
-        noPool: updatedMarket.noPool
-      }
-      
-      if (isFomoMarket) {
-        // For FOMO markets, update both the FOMO market cache AND the regular market cache
-        await fomoMarkets.set(market.id, updatedMarketData)
-        
-        // Also update the corresponding Market entry cache if it exists
-        try {
-          const correspondingMarket = await prisma.market.findUnique({ where: { id: market.id } })
-          if (correspondingMarket) {
-            const correspondingMarketData = {
-              ...correspondingMarket,
-              yesPool: updatedMarket.yesPool,
-              noPool: updatedMarket.noPool
-            }
-            await markets.set(market.id, correspondingMarketData)
-          }
-        } catch (error) {
-          console.error('Failed to update corresponding Market cache:', error)
-        }
-      } else {
-        await markets.set(market.id, updatedMarketData)
-      }
+      // Database is already updated in the transaction above
+      // No need to update caches as they use the database as source of truth
+      console.log(`Database updated with pools - YES: ${updatedMarket.yesPool}, NO: ${updatedMarket.noPool}`)
+      console.log(`Market cache will reflect database values on next read`)
 
       // Bet is already created in database transaction above - no need for additional storage
 
@@ -308,8 +284,10 @@ export async function POST(
       }, user.id, request)
 
       console.log(`✅ Bet placed successfully: ${updatedUser.walletAddress.slice(0, 8)}... bet ${amount} points on ${side}`)
+      console.log(`Fee deducted: ${penaltyFee}, Net amount added to pool: ${netAmount}`)
       console.log(`New user balance: ${updatedUser.pointsBalance}`)
-      console.log(`Market pools - YES: ${updatedMarket.yesPool}, NO: ${updatedMarket.noPool}`)
+      console.log(`Market pools after update - YES: ${updatedMarket.yesPool}, NO: ${updatedMarket.noPool}`)
+      console.log(`Is FOMO market: ${isFomoMarket}`)
 
       return NextResponse.json({
         success: true,
