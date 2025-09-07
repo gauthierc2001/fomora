@@ -6,7 +6,7 @@
     "dev": "next dev --port 8000",
     "build": "npx prisma generate --schema=../../packages/db/prisma/schema.prisma && next build",
     "vercel-build": "npx prisma generate --schema=../../packages/db/prisma/schema.prisma && next build",
-    "start": "next start --port 8000",
+    "start": "next start --port ${PORT:-3000}",
     "lint": "next lint",
     "test": "vitest",
     "test:e2e": "playwright test"

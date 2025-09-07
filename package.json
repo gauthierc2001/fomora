@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "cd packages/db && pnpm db:generate && cd ../../apps/web && pnpm build",
-    "start": "cd apps/web && pnpm start",
+    "start": "cd apps/web && PORT=${PORT:-3000} pnpm start",
     "test": "turbo run test",
     "lint": "turbo run lint",
     "clean": "turbo run clean",

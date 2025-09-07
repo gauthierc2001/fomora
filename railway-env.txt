@@ -8,3 +8,5 @@ TEST_HOURS=48
 NEXT_PUBLIC_SOLANA_NETWORK=devnet
 NODE_ENV=production
 PORT=3000
+
+# Note: Railway will automatically detect this as a web service once it starts listening on PORT 3000

@@ -12,3 +12,6 @@ cmds = [
 
 [start]
 cmd = 'cd apps/web && pnpm start'
+
+[variables]
+PORT = '3000'
