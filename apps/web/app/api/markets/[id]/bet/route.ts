@@ -148,6 +148,51 @@ export async function POST(
     step = 'starting transaction'
     try {
       const [updatedUser, updatedMarket, newBet] = await prisma.$transaction(async (tx) => {
+        // For FOMO markets, ensure a Market entry exists for foreign key constraint
+        if (isFomoMarket) {
+          console.log('Creating Market entry for FOMO market to satisfy foreign key constraint...')
+          try {
+            // Check if Market entry already exists for this FOMO market
+            const existingMarket = await tx.market.findUnique({ where: { id: market.id } })
+            if (!existingMarket) {
+              // Get a valid user ID for createdBy (find any admin or system user)
+              const systemUser = await tx.user.findFirst({ 
+                where: { 
+                  OR: [
+                    { walletAddress: { contains: 'system' } },
+                    { walletAddress: { contains: 'admin' } },
+                    { pointsBalance: { gte: 1000000 } } // Likely an admin with high balance
+                  ]
+                }
+              })
+              
+              if (!systemUser) {
+                throw new Error('No system user found for FOMO market creation')
+              }
+
+              await tx.market.create({
+                data: {
+                  id: market.id,
+                  slug: `fomo-${market.id}`,
+                  question: market.question,
+                  description: market.description || '',
+                  category: market.category || 'Crypto',
+                  createdBy: systemUser.id, // Use valid user ID
+                  status: market.status === 'OPEN' ? 'OPEN' : 'CLOSED',
+                  closesAt: market.closesAt,
+                  yesPool: market.yesPool || 0,
+                  noPool: market.noPool || 0,
+                  createFee: 0
+                }
+              })
+              console.log('Successfully created Market entry for FOMO market')
+            }
+          } catch (error) {
+            console.error('Failed to create Market entry for FOMO market:', error)
+            throw error
+          }
+        }
+
         // Update user
         const updatedUser = await tx.user.update({
           where: { id: user.id },
@@ -175,7 +220,18 @@ export async function POST(
             data: fomoUpdateData
           })
           
-          // Note: No Market table update needed for FOMO markets as they use separate table
+          // Also update the Market table to keep it in sync
+          const marketUpdateData: any = {}
+          if (side === 'YES') {
+            marketUpdateData.yesPool = { increment: netAmount }
+          } else {
+            marketUpdateData.noPool = { increment: netAmount }
+          }
+          
+          await tx.market.update({
+            where: { id: market.id },
+            data: marketUpdateData
+          })
         } else {
           const updateData: any = {}
           if (side === 'YES') {
