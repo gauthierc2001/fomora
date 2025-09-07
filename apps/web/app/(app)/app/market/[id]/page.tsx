@@ -266,7 +266,7 @@ export default function MarketPage({ params }: MarketPageProps) {
                 >
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-600">YES</div>
-                    <div className="text-lg font-semibold">{formatOdds(market.yesPool, market.noPool).yes}%</div>
+                    <div className="text-lg font-semibold">{formatOdds(market.yesPool || 0, market.noPool || 0).yes}%</div>
                     <div className="text-sm text-muted-foreground">{(market.yesPool || 0).toLocaleString()} points</div>
                   </div>
                 </div>
@@ -279,7 +279,7 @@ export default function MarketPage({ params }: MarketPageProps) {
                 >
                   <div className="text-center">
                     <div className="text-2xl font-bold text-red-600">NO</div>
-                    <div className="text-lg font-semibold">{formatOdds(market.yesPool, market.noPool).no}%</div>
+                    <div className="text-lg font-semibold">{formatOdds(market.yesPool || 0, market.noPool || 0).no}%</div>
                     <div className="text-sm text-muted-foreground">{(market.noPool || 0).toLocaleString()} points</div>
                   </div>
                 </div>

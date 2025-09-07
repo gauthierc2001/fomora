@@ -1,8 +1,5 @@
-import { createHash } from 'crypto'
-import { PrismaClient } from '@prisma/client'
-import { newsService } from '@/lib/news-service'
-
-const prisma = new PrismaClient()
+import { prisma } from '@fomora/db'
+import { validateMarket, validateClosingTime, isTimeSensitive } from '@/lib/market-validator'
 
 async function getCryptoPrices() {
   try {
@@ -260,15 +257,23 @@ async function initializeRegularMarkets() {
 
     // Validate and create new markets
     for (const marketData of proposedMarkets) {
-      // Validate market against news
-      const validation = await newsService.validateMarket(
-        marketData.question,
-        marketData.description
-      )
-
-      if (!validation.isValid) {
-        console.log(`❌ Skipping market "${marketData.question}": ${validation.reason}`)
+      // Validate market content
+      const contentValidation = validateMarket(marketData.question, marketData.description)
+      if (!contentValidation.isValid) {
+        console.log(`❌ Skipping market "${marketData.question}": ${contentValidation.reason}`)
         continue
+      }
+
+      // Validate closing time
+      const timeValidation = validateClosingTime(marketData.closesAt)
+      if (!timeValidation.isValid) {
+        console.log(`❌ Skipping market "${marketData.question}": ${timeValidation.reason}`)
+        continue
+      }
+
+      // Adjust closing time for time-sensitive markets
+      if (isTimeSensitive(marketData.question, marketData.description)) {
+        marketData.closesAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days max for time-sensitive
       }
 
       // Split initial pool between YES and NO with slight randomization
