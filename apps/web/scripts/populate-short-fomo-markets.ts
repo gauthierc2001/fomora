@@ -16,7 +16,13 @@ const SHORT_TERM_COINS = [
   { symbol: 'PNUT', name: 'Peanut', emoji: '🥜', multipliers: [1.12, 1.18, 1.25, 0.88, 0.82, 0.75] }
 ]
 
-async function fetchCryptoPrices(): Promise<Record<string, number>> {
+interface CoinData {
+  price: number
+  change24h: number
+  logo: string
+}
+
+async function fetchCryptoPrices(): Promise<Record<string, CoinData>> {
   try {
     // Map symbols to CoinGecko IDs
     const symbolToId: Record<string, string> = {
@@ -35,52 +41,84 @@ async function fetchCryptoPrices(): Promise<Record<string, number>> {
     const symbols = SHORT_TERM_COINS.map(coin => coin.symbol)
     const ids = symbols.map(symbol => symbolToId[symbol]).filter(Boolean).join(',')
     
-    console.log('🔍 Fetching live prices from CoinGecko for:', symbols.join(', '))
+    console.log('🔍 Fetching live prices + logos from CoinGecko for:', symbols.join(', '))
     
-    const response = await fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`,
-      {
-        headers: {
-          'Accept': 'application/json',
-          'User-Agent': 'Fomora/1.0'
+    // Fetch both price data and coin details (for logos)
+    const [priceResponse, coinsResponse] = await Promise.all([
+      fetch(
+        `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`,
+        {
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'Fomora/1.0'
+          }
         }
-      }
-    )
+      ),
+      fetch(
+        `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&order=market_cap_desc&per_page=50&page=1`,
+        {
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'Fomora/1.0'
+          }
+        }
+      )
+    ])
     
-    if (!response.ok) {
-      console.warn('❌ CoinGecko API failed:', response.status, response.statusText)
-      throw new Error(`CoinGecko API error: ${response.status}`)
+    if (!priceResponse.ok || !coinsResponse.ok) {
+      console.warn('❌ CoinGecko API failed:', priceResponse.status, coinsResponse.status)
+      throw new Error(`CoinGecko API error: ${priceResponse.status} / ${coinsResponse.status}`)
     }
     
-    const data = await response.json()
-    console.log('📊 Raw CoinGecko data:', data)
+    const priceData = await priceResponse.json()
+    const coinsData = await coinsResponse.json()
     
-    // Convert back to symbol-based mapping
-    const prices: Record<string, number> = {}
+    console.log('📊 Raw CoinGecko price data:', priceData)
+    console.log('🖼️ Raw CoinGecko coins data:', coinsData.length, 'coins with logos')
+    
+    // Create a mapping of coin ID to logo
+    const logoMap: Record<string, string> = {}
+    for (const coin of coinsData) {
+      logoMap[coin.id] = coin.image
+    }
+    
+    // Convert back to symbol-based mapping with prices and logos
+    const coinData: Record<string, CoinData> = {}
     for (const [symbol, coinId] of Object.entries(symbolToId)) {
-      if (data[coinId]?.usd) {
-        prices[symbol] = data[coinId].usd
-        console.log(`💰 ${symbol}: $${data[coinId].usd} (24h: ${data[coinId].usd_24h_change?.toFixed(2)}%)`)
+      if (priceData[coinId]?.usd) {
+        coinData[symbol] = {
+          price: priceData[coinId].usd,
+          change24h: priceData[coinId].usd_24h_change || 0,
+          logo: logoMap[coinId] || ''
+        }
+        console.log(`💰 ${symbol}: $${coinData[symbol].price} (24h: ${coinData[symbol].change24h.toFixed(2)}%) 🖼️ ${coinData[symbol].logo ? '✅' : '❌'}`)
       }
     }
     
-    if (Object.keys(prices).length === 0) {
-      throw new Error('No valid prices received from CoinGecko')
+    if (Object.keys(coinData).length === 0) {
+      throw new Error('No valid coin data received from CoinGecko')
     }
     
-    return prices
+    return coinData
   } catch (error) {
-    console.error('❌ Failed to fetch crypto prices:', error)
-    console.log('🔄 Using fallback prices for testing...')
-    // Return fallback prices only as last resort
-    return {
+    console.error('❌ Failed to fetch crypto data:', error)
+    console.log('🔄 Using fallback data for testing...')
+    // Return fallback data only as last resort
+    const fallbackData: Record<string, CoinData> = {}
+    const fallbackPrices = {
       BTC: 45000, ETH: 2500, SOL: 110, DOGE: 0.08, PEPE: 0.000012,
       SHIB: 0.000018, WIF: 2.1, BONK: 0.000025, POPCAT: 1.2, PNUT: 0.65
     }
+    
+    for (const [symbol, price] of Object.entries(fallbackPrices)) {
+      fallbackData[symbol] = { price, change24h: 0, logo: '' }
+    }
+    
+    return fallbackData
   }
 }
 
-function generateShortTermMarkets(prices: Record<string, number>) {
+function generateShortTermMarkets(coinData: Record<string, CoinData>) {
   const now = new Date()
   const markets = []
   
@@ -99,13 +137,18 @@ function generateShortTermMarkets(prices: Record<string, number>) {
   for (const coin of SHORT_TERM_COINS) {
     if (marketCount >= 20) break
     
-    const currentPrice = prices[coin.symbol]
-    if (!currentPrice) {
-      console.warn(`⚠️ No price data for ${coin.symbol}, skipping...`)
+    const coinInfo = coinData[coin.symbol]
+    if (!coinInfo) {
+      console.warn(`⚠️ No coin data for ${coin.symbol}, skipping...`)
       continue
     }
     
+    const currentPrice = coinInfo.price
+    const change24h = coinInfo.change24h
+    const logo = coinInfo.logo
     const priceStr = currentPrice < 1 ? currentPrice.toFixed(6) : currentPrice.toFixed(2)
+    
+    console.log(`🔍 Processing ${coin.symbol}: $${priceStr} (24h: ${change24h.toFixed(2)}%) Logo: ${logo ? '✅' : '❌'}`)
     
     // Create 2 markets per coin (mix of timeframes)
     const selectedIntervals = intervals.sort(() => Math.random() - 0.5).slice(0, 2)
@@ -137,7 +180,8 @@ function generateShortTermMarkets(prices: Record<string, number>) {
             question: `Will ${coin.name} (${coin.symbol}) reach $${targetUpStr} in ${interval.label}?`,
             description: `${coin.emoji} Current: $${priceStr} → Target: $${targetUpStr} (+${upPercent.toFixed(1)}%) in ${interval.label}. Live CoinGecko tracking!`,
             closesAt,
-            category: 'Crypto'
+            category: 'Crypto',
+            logo
           }
           break
           
@@ -159,7 +203,8 @@ function generateShortTermMarkets(prices: Record<string, number>) {
             question: `Will ${coin.name} (${coin.symbol}) drop to $${targetDownStr} in ${interval.label}?`,
             description: `${coin.emoji} Current: $${priceStr} → Target: $${targetDownStr} (-${downPercent.toFixed(1)}%) in ${interval.label}. Live CoinGecko tracking!`,
             closesAt,
-            category: 'Crypto'
+            category: 'Crypto',
+            logo
           }
           break
           
@@ -171,7 +216,8 @@ function generateShortTermMarkets(prices: Record<string, number>) {
             question: `Will ${coin.name} (${coin.symbol}) move ±${roundedVolatility}% in ${interval.label}?`,
             description: `${coin.emoji} Current: $${priceStr}. Will price move up OR down by ${roundedVolatility}% or more within ${interval.label}? Live tracking via CoinGecko!`,
             closesAt,
-            category: 'Crypto'
+            category: 'Crypto',
+            logo
           }
           break
       }
@@ -205,14 +251,14 @@ async function populateShortFomoMarkets(clearExisting = false) {
       console.log(`🗑️ Deleted ${deleted.count} existing short-term markets`)
     }
     
-    // Fetch latest crypto prices from CoinGecko
-    const prices = await fetchCryptoPrices()
-    console.log('📈 Fetched live prices for', Object.keys(prices).length, 'coins')
-    console.log('💰 Sample prices:', Object.entries(prices).slice(0, 3).map(([symbol, price]) => `${symbol}: $${price}`).join(', '))
+    // Fetch latest crypto data from CoinGecko (prices + logos)
+    const coinData = await fetchCryptoPrices()
+    console.log('📈 Fetched live data for', Object.keys(coinData).length, 'coins')
+    console.log('💰 Sample data:', Object.entries(coinData).slice(0, 3).map(([symbol, data]) => `${symbol}: $${data.price} ${data.logo ? '🖼️' : ''}`).join(', '))
     
-    // Generate short-term markets based on real prices
-    const markets = generateShortTermMarkets(prices)
-    console.log(`🎯 Generated ${markets.length} short-term FOMO markets with live prices`)
+    // Generate short-term markets based on real data
+    const markets = generateShortTermMarkets(coinData)
+    console.log(`🎯 Generated ${markets.length} short-term FOMO markets with live prices & logos`)
     
     // Create markets in database
     let created = 0
@@ -224,8 +270,8 @@ async function populateShortFomoMarkets(clearExisting = false) {
         .replace(/\s+/g, '-')
         .substring(0, 50)
       
-      // Get market image
-      const image = await getMarketImage(marketData.question, marketData.description)
+      // Use CoinGecko logo if available, otherwise fallback to generated image
+      const image = marketData.logo || await getMarketImage(marketData.question, marketData.description)
       
       await prisma.fomoMarket.create({
         data: {
@@ -255,7 +301,8 @@ async function populateShortFomoMarkets(clearExisting = false) {
     return {
       success: true,
       marketsCreated: created,
-      pricesUsed: prices,
+      coinsWithLogos: Object.values(coinData).filter(coin => coin.logo).length,
+      coinData,
       breakdown: {
         '15min': markets.filter(m => m.description.includes('15 minutes')).length,
         '30min': markets.filter(m => m.description.includes('30 minutes')).length,
