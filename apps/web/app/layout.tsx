@@ -1,19 +1,8 @@
 import type { Metadata } from 'next'
-import { Inter, Outfit } from 'next/font/google'
 import { Providers } from '@/components/providers'
 import '@/styles/globals.css'
 import '@solana/wallet-adapter-react-ui/styles.css'
 import '@/lib/console-filter' // Filter out wallet noise
-
-const inter = Inter({ 
-  subsets: ['latin'],
-  variable: '--font-inter'
-})
-
-const outfit = Outfit({ 
-  subsets: ['latin'],
-  variable: '--font-outfit'
-})
 
 export const metadata: Metadata = {
   title: 'Fomora - Bet on the Internet',
@@ -58,7 +47,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${outfit.variable} font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <Providers>
           {children}
         </Providers>
