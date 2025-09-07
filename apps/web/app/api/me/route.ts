@@ -7,11 +7,19 @@ import { users } from '@/lib/storage'
 export async function GET(request: NextRequest) {
   try {
     console.log('GET /api/me - checking session...')
+    console.log('Environment:', process.env.NODE_ENV)
+    console.log('Request URL:', request.url)
+    console.log('Request headers:', Object.fromEntries(request.headers.entries()))
+    
     const sessionCookie = request.cookies.get('session')
     console.log('Session cookie exists:', !!sessionCookie?.value)
+    console.log('Session cookie value (first 20 chars):', sessionCookie?.value?.slice(0, 20) + '...')
     
     const session = await getSessionFromRequest(request)
     console.log('Session data:', session ? 'found' : 'not found')
+    if (session) {
+      console.log('Session wallet:', session.walletAddress.slice(0, 8) + '...')
+    }
     
     if (!session) {
       console.log('No session found, returning 401')
