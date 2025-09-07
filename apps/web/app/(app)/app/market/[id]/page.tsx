@@ -323,32 +323,26 @@ export default function MarketPage({ params }: MarketPageProps) {
               </div>
             </div>
             
-            <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+            <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
               {market.image ? (
                 <img 
                   src={market.image} 
                   alt={market.question} 
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    console.error('Failed to load market image:', market.image)
-                    // Show category icon as fallback
                     const target = e.target as HTMLImageElement
-                    target.src = `/icons/${market.category?.toLowerCase() || 'default'}.svg`
-                    target.onerror = () => {
-                      target.style.display = 'none'
+                    target.style.display = 'none'
+                    // Show a simple fallback instead
+                    const parent = target.parentElement
+                    if (parent && !parent.querySelector('.fallback-icon')) {
+                      parent.innerHTML = '<div class="fallback-icon text-gray-400 text-3xl font-bold">?</div>'
                     }
                   }}
                 />
               ) : (
-                // Show category icon if no image
-                <img 
-                  src={`/icons/${market.category?.toLowerCase() || 'default'}.svg`}
-                  alt={market.category || 'Market'} 
-                  className="w-full h-full object-contain p-4"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none'
-                  }}
-                />
+                <div className="text-gray-400 text-3xl font-bold">
+                  {market.category?.charAt(0) || '?'}
+                </div>
               )}
             </div>
           </div>

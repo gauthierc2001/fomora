@@ -15,12 +15,9 @@ export async function POST(
 ) {
   try {
     console.log('=== PLACE BET API START ===')
-    console.log('Request headers:', Object.fromEntries(request.headers.entries()))
-    console.log('Request cookies:', request.cookies.getAll())
     
     // Get and validate session
     const session = await getSessionFromRequest(request)
-    console.log('Session result:', session)
     if (!session) {
       console.log('No session - returning 401')
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
@@ -157,16 +154,37 @@ export async function POST(
       })
 
       // Update memory state with transaction results
-      await users.set(session.walletAddress, updatedUser)
+      const updatedUserData = {
+        ...user,
+        pointsBalance: updatedUser.pointsBalance,
+        totalBets: updatedUser.totalBets,
+        totalWagered: updatedUser.totalWagered
+      }
+      await users.set(session.walletAddress, updatedUserData)
+      
+      // Update market data with new pools
+      const updatedMarketData = {
+        ...market,
+        yesPool: updatedMarket.yesPool,
+        noPool: updatedMarket.noPool
+      }
       
       if (isFomoMarket) {
-        await fomoMarkets.set(market.id, updatedMarket)
+        await fomoMarkets.set(market.id, updatedMarketData)
       } else {
-        await markets.set(market.id, updatedMarket)
+        await markets.set(market.id, updatedMarketData)
       }
 
-      // Update bet cache
-      await bets.set(betId, newBet)
+      // Update bet cache with proper structure
+      const betData = {
+        id: newBet.id,
+        userId: newBet.userId,
+        marketId: newBet.marketId,
+        side: newBet.side,
+        amount: newBet.amount,
+        createdAt: newBet.createdAt
+      }
+      await bets.set(betId, betData)
 
       // Log action
       await logAction('BET', {
