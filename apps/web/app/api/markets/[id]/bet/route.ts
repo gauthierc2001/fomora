@@ -15,10 +15,12 @@ export async function POST(
 ) {
   try {
     console.log('=== PLACE BET API START ===')
+    console.log('Request headers:', Object.fromEntries(request.headers.entries()))
+    console.log('Request cookies:', request.cookies.getAll())
     
     // Get and validate session
     const session = await getSessionFromRequest(request)
-    console.log('Session:', session ? 'found' : 'not found')
+    console.log('Session result:', session)
     if (!session) {
       console.log('No session - returning 401')
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
@@ -192,8 +194,13 @@ export async function POST(
       })
 
     } catch (error) {
-      console.error('Transaction failed:', error)
-      throw new Error('Failed to process bet')
+      console.error('❌ TRANSACTION FAILED:', error)
+      console.error('Error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack'
+      })
+      throw new Error(`Transaction failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
 
   } catch (error) {
