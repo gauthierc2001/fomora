@@ -197,6 +197,18 @@ export const bets = {
 
   async size(): Promise<number> {
     return await prisma.bet.count()
+  },
+
+  async values(): Promise<BetType[]> {
+    const bets = await prisma.bet.findMany()
+    return bets.map(bet => ({
+      id: bet.id,
+      userId: bet.userId,
+      marketId: bet.marketId,
+      side: bet.side as any,
+      amount: bet.amount,
+      createdAt: bet.createdAt
+    }))
   }
 }
 
