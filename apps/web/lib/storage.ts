@@ -88,6 +88,29 @@ export const users = {
 
   async size(): Promise<number> {
     return await prisma.user.count()
+  },
+
+  async values(): Promise<UserType[]> {
+    const users = await prisma.user.findMany()
+    return users.map(user => ({
+      id: user.id,
+      walletAddress: user.walletAddress,
+      role: user.role,
+      pointsBalance: user.pointsBalance,
+      creditedInitial: user.creditedInitial,
+      ipHash: user.ipHash || '',
+      displayName: `User ${user.walletAddress.slice(0, 6)}`,
+      profilePicture: undefined,
+      createdAt: user.createdAt,
+      totalBets: 0, // TODO: Calculate from bets
+      totalWagered: 0, // TODO: Calculate from bets
+      marketsCreated: 0 // TODO: Calculate from markets
+    }))
+  },
+
+  async entries(): Promise<[string, UserType][]> {
+    const users = await this.values()
+    return users.map(user => [user.walletAddress, user])
   }
 }
 

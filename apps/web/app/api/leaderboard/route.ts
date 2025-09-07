@@ -26,10 +26,10 @@ export async function GET(request: NextRequest) {
     // Get session to show user rank
     const session = await getSessionFromRequest(request)
     
-    console.log(`Leaderboard API: ${users.size} total users in storage`)
+    console.log(`Leaderboard API: ${await users.size()} total users in storage`)
     
     // Convert users map to array and sort by points, then by creation date
-    let allUsers = Array.from(users.values()).sort((a, b) => {
+    let allUsers = (await users.values()).sort((a, b) => {
       // Primary sort: points (descending)
       if (b.pointsBalance !== a.pointsBalance) {
         return b.pointsBalance - a.pointsBalance

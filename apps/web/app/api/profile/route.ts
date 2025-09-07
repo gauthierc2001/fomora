@@ -16,13 +16,12 @@ export async function PATCH(request: NextRequest) {
     }
     
     console.log('Profile update for session:', session.id)
-    console.log('Users in storage:', Array.from(users.keys()).map(k => k.slice(0, 8) + '...'))
     
     const body = await request.json()
     const { displayName, profilePicture } = updateProfileSchema.parse(body)
     
     // First try to find user by wallet address (primary key)
-    let user = users.get(session.walletAddress)
+    let user = await users.get(session.walletAddress)
     let userWalletAddress = session.walletAddress
     
     // If not found, search by session ID
