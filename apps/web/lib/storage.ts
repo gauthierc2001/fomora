@@ -69,21 +69,71 @@ export const users = {
   },
 
   async set(walletAddress: string, userData: UserType): Promise<void> {
-    await prisma.user.upsert({
-      where: { walletAddress },
-      create: {
-        walletAddress: userData.walletAddress,
-        role: userData.role as any,
-        pointsBalance: userData.pointsBalance,
-        creditedInitial: userData.creditedInitial,
-        ipHash: userData.ipHash
-      },
-      update: {
-        pointsBalance: userData.pointsBalance,
-        creditedInitial: userData.creditedInitial,
-        ipHash: userData.ipHash
+    try {
+      await prisma.user.upsert({
+        where: { walletAddress },
+        create: {
+          id: userData.id,
+          walletAddress: userData.walletAddress,
+          role: userData.role as any,
+          pointsBalance: userData.pointsBalance,
+          creditedInitial: userData.creditedInitial,
+          ipHash: userData.ipHash,
+          displayName: userData.displayName,
+          profilePicture: userData.profilePicture,
+          totalBets: userData.totalBets,
+          totalWagered: userData.totalWagered,
+          marketsCreated: userData.marketsCreated,
+          createdAt: userData.createdAt
+        },
+        update: {
+          pointsBalance: userData.pointsBalance,
+          creditedInitial: userData.creditedInitial,
+          ipHash: userData.ipHash,
+          displayName: userData.displayName,
+          profilePicture: userData.profilePicture,
+          totalBets: userData.totalBets,
+          totalWagered: userData.totalWagered,
+          marketsCreated: userData.marketsCreated
+        }
+      })
+    } catch (error) {
+      // If there's a prepared statement error, disconnect and reconnect
+      if (error instanceof Error && error.message.includes('prepared statement')) {
+        await prisma.$disconnect()
+        await prisma.$connect()
+        // Retry the operation
+        await prisma.user.upsert({
+          where: { walletAddress },
+          create: {
+            id: userData.id,
+            walletAddress: userData.walletAddress,
+            role: userData.role as any,
+            pointsBalance: userData.pointsBalance,
+            creditedInitial: userData.creditedInitial,
+            ipHash: userData.ipHash,
+            displayName: userData.displayName,
+            profilePicture: userData.profilePicture,
+            totalBets: userData.totalBets,
+            totalWagered: userData.totalWagered,
+            marketsCreated: userData.marketsCreated,
+            createdAt: userData.createdAt
+          },
+          update: {
+            pointsBalance: userData.pointsBalance,
+            creditedInitial: userData.creditedInitial,
+            ipHash: userData.ipHash,
+            displayName: userData.displayName,
+            profilePicture: userData.profilePicture,
+            totalBets: userData.totalBets,
+            totalWagered: userData.totalWagered,
+            marketsCreated: userData.marketsCreated
+          }
+        })
+      } else {
+        throw error
       }
-    })
+    }
   },
 
   async size(): Promise<number> {

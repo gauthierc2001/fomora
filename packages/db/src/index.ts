@@ -7,7 +7,20 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log: ['query'],
+    log: ['error'],
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL
+      }
+    },
+    // Add connection pool configuration
+    connection: {
+      pool: {
+        min: 0,
+        max: 8,
+        idleTimeoutMillis: 10000
+      }
+    }
   })
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
