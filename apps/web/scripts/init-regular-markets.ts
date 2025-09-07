@@ -58,6 +58,11 @@ async function initializeRegularMarkets() {
     const endOf2025 = new Date(2025, 11, 31) // End of 2025
     const q12026 = new Date(2026, 2, 31) // End of Q1 2026
     const mid2026 = new Date(2026, 5, 30) // Mid 2026
+    
+    // September 2024 specific dates
+    const sept17 = new Date(2024, 8, 17) // Sept 17, 2024
+    const sept30 = new Date(2024, 8, 30) // Sept 30, 2024
+    const oct1 = new Date(2024, 9, 1) // Oct 1, 2024
 
     const proposedMarkets = [
       // Crypto Markets
@@ -133,6 +138,48 @@ async function initializeRegularMarkets() {
         closesAt: mid2026,
         initialPool: 3500
       },
+      {
+        question: "Will Apple announce an iPhone 17 \"Air\" at the Sept event?",
+        description: "Apple must announce iPhone 17 Air model at September 2024 event.",
+        category: "Tech",
+        closesAt: sept30,
+        initialPool: 4000
+      },
+      {
+        question: "Will Nvidia's Sept investor presentation move stock >5% the next day?",
+        description: "Nvidia stock price must move more than 5% (up or down) the day after September 2024 investor presentation.",
+        category: "Tech",
+        closesAt: sept30,
+        initialPool: 3500
+      },
+      {
+        question: "Will GameStop earnings cause >15% intraday swing this month?",
+        description: "GameStop stock must experience intraday price swing exceeding 15% on earnings day in September 2024.",
+        category: "Tech",
+        closesAt: sept30,
+        initialPool: 3000
+      },
+      {
+        question: "Will Robinhood's football prediction markets pass 1M contracts traded in Week 1?",
+        description: "Robinhood platform must exceed 1 million prediction market contracts traded for NFL Week 1.",
+        category: "Tech",
+        closesAt: new Date(2024, 8, 10),
+        initialPool: 3500
+      },
+      {
+        question: "Will McDonald's new value menu lift U.S. same-store sales this quarter?",
+        description: "McDonald's U.S. same-store sales must show positive growth attributable to new value menu this quarter.",
+        category: "Tech",
+        closesAt: new Date(2024, 11, 31),
+        initialPool: 3000
+      },
+      {
+        question: "Will Meta announce another VR headset at its Sept event?",
+        description: "Meta must announce new VR headset product at September 2024 event.",
+        category: "Tech",
+        closesAt: sept30,
+        initialPool: 3500
+      },
 
       // Politics & World Events
       {
@@ -169,6 +216,90 @@ async function initializeRegularMarkets() {
         category: "Politics",
         closesAt: endOf2025,
         initialPool: 4000
+      },
+      {
+        question: "Will the Fed cut rates at the Sept 17 meeting?",
+        description: "Federal Reserve must announce interest rate reduction at the September 17, 2024 FOMC meeting.",
+        category: "Politics",
+        closesAt: sept17,
+        initialPool: 4500
+      },
+      {
+        question: "Will Powell say the word \"data-dependent\" more than 5 times on Sept 17?",
+        description: "Fed Chair Jerome Powell must use the phrase \"data-dependent\" more than 5 times during the Sept 17 press conference.",
+        category: "Politics",
+        closesAt: sept17,
+        initialPool: 2500
+      },
+      {
+        question: "Will U.S. September CPI (Sept 11 release) come in above 3.6% YoY?",
+        description: "U.S. Consumer Price Index for September must exceed 3.6% year-over-year when released on September 11, 2024.",
+        category: "Politics",
+        closesAt: new Date(2024, 8, 11),
+        initialPool: 3500
+      },
+      {
+        question: "Will Norway's government survive the Sept confidence vote?",
+        description: "Norwegian government must retain confidence in Parliament during September 2024 vote.",
+        category: "Politics",
+        closesAt: sept30,
+        initialPool: 3000
+      },
+      {
+        question: "Will Congress pass a budget before Sept 30 to avoid shutdown?",
+        description: "U.S. Congress must pass appropriations bill before September 30, 2024 to prevent government shutdown.",
+        category: "Politics",
+        closesAt: sept30,
+        initialPool: 4000
+      },
+      {
+        question: "Will France's bond yields spike another +10bps this month?",
+        description: "French 10-year government bond yields must increase by at least 10 basis points during September 2024.",
+        category: "Politics",
+        closesAt: sept30,
+        initialPool: 3000
+      },
+      {
+        question: "Will the UN General Assembly issue a joint statement on AI?",
+        description: "UN General Assembly (starting Sept 9) must issue official joint statement on artificial intelligence regulation.",
+        category: "Politics",
+        closesAt: sept30,
+        initialPool: 3500
+      },
+      {
+        question: "Will Zelenskyy meet Biden during the UN Assembly this month?",
+        description: "Ukrainian President Zelenskyy must have documented meeting with President Biden during September 2024 UN Assembly.",
+        category: "Politics",
+        closesAt: sept30,
+        initialPool: 4000
+      },
+      {
+        question: "Will Putin appear in public in September wearing military uniform?",
+        description: "Vladimir Putin must make public appearance in military uniform during September 2024.",
+        category: "Politics",
+        closesAt: sept30,
+        initialPool: 3000
+      },
+      {
+        question: "Will Kim Jong Un appear in state media in September?",
+        description: "North Korean leader Kim Jong Un must appear in official state media during September 2024.",
+        category: "Politics",
+        closesAt: sept30,
+        initialPool: 2500
+      },
+      {
+        question: "Will OPEC+ announce a production cut before Oct 1?",
+        description: "OPEC+ member countries must announce oil production reduction before October 1, 2024.",
+        category: "Politics",
+        closesAt: oct1,
+        initialPool: 3500
+      },
+      {
+        question: "Will the ECB hold rates steady at its Sept meeting?",
+        description: "European Central Bank must maintain current interest rates at September 2024 meeting.",
+        category: "Politics",
+        closesAt: sept30,
+        initialPool: 3000
       },
 
       // Entertainment & Media
@@ -207,6 +338,48 @@ async function initializeRegularMarkets() {
         closesAt: endOf2025,
         initialPool: 2500
       },
+      {
+        question: "Will Taylor Swift & Travis Kelce announce wedding plans before Oct 1?",
+        description: "Taylor Swift and Travis Kelce must officially announce engagement or wedding plans before October 1, 2024.",
+        category: "Entertainment",
+        closesAt: oct1,
+        initialPool: 4000
+      },
+      {
+        question: "Will a Swift/Kelce NFL broadcast cutaway trend on TikTok within 24h?",
+        description: "NFL broadcast showing Taylor Swift/Travis Kelce must generate trending TikTok content within 24 hours of airing.",
+        category: "Entertainment",
+        closesAt: sept30,
+        initialPool: 3000
+      },
+      {
+        question: "Will Drake drop a new single before the end of September?",
+        description: "Drake must release new single track before September 30, 2024.",
+        category: "Entertainment",
+        closesAt: sept30,
+        initialPool: 3500
+      },
+      {
+        question: "Will Kanye release new music in September?",
+        description: "Kanye West must release new music (single, album, or EP) during September 2024.",
+        category: "Entertainment",
+        closesAt: sept30,
+        initialPool: 3500
+      },
+      {
+        question: "Will MrBeast upload a new video that passes 100M views in <7 days this month?",
+        description: "MrBeast must upload YouTube video in September 2024 that reaches 100 million views within 7 days.",
+        category: "Entertainment",
+        closesAt: sept30,
+        initialPool: 4000
+      },
+      {
+        question: "Will Elon Musk mention Polymarket odds on X in September?",
+        description: "Elon Musk must reference Polymarket betting odds in X (Twitter) post during September 2024.",
+        category: "Entertainment",
+        closesAt: sept30,
+        initialPool: 3000
+      },
 
       // Sports
       {
@@ -242,6 +415,48 @@ async function initializeRegularMarkets() {
         description: "IOC must approve esports for 2028 Olympics by end of 2025.",
         category: "Sports",
         closesAt: endOf2025,
+        initialPool: 3000
+      },
+      {
+        question: "Will Travis Kelce score a touchdown in Week 1?",
+        description: "Travis Kelce must score at least one touchdown in NFL Week 1 game.",
+        category: "Sports",
+        closesAt: new Date(2024, 8, 10),
+        initialPool: 3500
+      },
+      {
+        question: "Will ESPN mention Taylor Swift more than Kelce's stats in Week 1 broadcast?",
+        description: "ESPN broadcast must mention Taylor Swift more times than reporting Travis Kelce's statistics during Week 1 game.",
+        category: "Sports",
+        closesAt: new Date(2024, 8, 10),
+        initialPool: 3000
+      },
+      {
+        question: "Will a Polymarket NFL market hit >$1M volume in Week 1?",
+        description: "Any Polymarket NFL-related betting market must exceed $1 million in trading volume during Week 1.",
+        category: "Sports",
+        closesAt: new Date(2024, 8, 10),
+        initialPool: 4000
+      },
+      {
+        question: "Will Alabama win their Week 2 college football matchup?",
+        description: "University of Alabama football team must win their Week 2 college football game.",
+        category: "Sports",
+        closesAt: new Date(2024, 8, 15),
+        initialPool: 3500
+      },
+      {
+        question: "Will Messi score in an MLS match before Sept 30?",
+        description: "Lionel Messi must score at least one goal in MLS match before September 30, 2024.",
+        category: "Sports",
+        closesAt: sept30,
+        initialPool: 4000
+      },
+      {
+        question: "Will an NFL Week 1 game go to overtime?",
+        description: "At least one NFL Week 1 game must go to overtime period.",
+        category: "Sports",
+        closesAt: new Date(2024, 8, 10),
         initialPool: 3000
       },
 
