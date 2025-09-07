@@ -32,7 +32,9 @@ export default function MarketPage({ params }: MarketPageProps) {
       return response.json()
     },
     retry: 2, // Retry failed requests twice
-    retryDelay: 1000 // Wait 1 second between retries
+    retryDelay: 1000, // Wait 1 second between retries
+    refetchInterval: 5000, // Refetch every 5 seconds
+    refetchIntervalInBackground: true // Refetch even when tab is in background
   })
 
   const { data: user } = useQuery({
@@ -142,14 +144,18 @@ export default function MarketPage({ params }: MarketPageProps) {
 
   // Use the imported formatOdds from utils
 
-  const formatTimeUntil = (date: string) => {
+  const formatTimeUntil = (date: string | Date) => {
     if (!date) return 'Invalid date'
     
     try {
       const now = new Date()
-      const target = new Date(date)
+      const target = typeof date === 'string' ? new Date(date) : date
       
-      if (isNaN(target.getTime())) return 'Invalid date'
+      // Validate date
+      if (!(target instanceof Date) || isNaN(target.getTime())) {
+        console.error('Invalid date:', date)
+        return 'Invalid date'
+      }
       
       const diffMs = target.getTime() - now.getTime()
       
@@ -161,9 +167,36 @@ export default function MarketPage({ params }: MarketPageProps) {
       
       if (days > 0) return `${days}d ${hours}h`
       if (hours > 0) return `${hours}h ${minutes}m`
-      return `${minutes}m`
+      if (minutes > 0) return `${minutes}m`
+      return 'Less than 1m'
     } catch (error) {
       console.error('Error formatting time:', error)
+      return 'Invalid date'
+    }
+  }
+
+  const formatDate = (date: string | Date) => {
+    if (!date) return 'Invalid date'
+    
+    try {
+      const target = typeof date === 'string' ? new Date(date) : date
+      
+      // Validate date
+      if (!(target instanceof Date) || isNaN(target.getTime())) {
+        console.error('Invalid date:', date)
+        return 'Invalid date'
+      }
+      
+      return target.toLocaleString('fr-FR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'UTC'
+      })
+    } catch (error) {
+      console.error('Error formatting date:', error)
       return 'Invalid date'
     }
   }
@@ -258,18 +291,34 @@ export default function MarketPage({ params }: MarketPageProps) {
               </div>
             </div>
             
-            {market.image && (
-              <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
+            <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+              {market.image ? (
                 <img 
                   src={market.image} 
                   alt={market.question} 
                   className="w-full h-full object-cover"
                   onError={(e) => {
+                    console.error('Failed to load market image:', market.image)
+                    // Show category icon as fallback
+                    const target = e.target as HTMLImageElement
+                    target.src = `/icons/${market.category?.toLowerCase() || 'default'}.svg`
+                    target.onerror = () => {
+                      target.style.display = 'none'
+                    }
+                  }}
+                />
+              ) : (
+                // Show category icon if no image
+                <img 
+                  src={`/icons/${market.category?.toLowerCase() || 'default'}.svg`}
+                  alt={market.category || 'Market'} 
+                  className="w-full h-full object-contain p-4"
+                  onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none'
                   }}
                 />
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </CardHeader>
       </Card>
@@ -469,23 +518,11 @@ export default function MarketPage({ params }: MarketPageProps) {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Created</span>
-                <span className="font-semibold">{new Date(market.createdAt).toLocaleString('fr-FR', { 
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}</span>
+                <span className="font-semibold">{formatDate(market.createdAt)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Closes</span>
-                <span className="font-semibold">{new Date(market.closesAt).toLocaleString('fr-FR', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}</span>
+                <span className="font-semibold">{formatDate(market.closesAt)}</span>
               </div>
             </CardContent>
           </Card>
