@@ -4,12 +4,13 @@ import { NextRequest } from 'next/server'
 import { prisma } from '@fomora/db'
 import { createHash } from 'crypto'
 
-// Validate JWT_SECRET in production
-if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required in production')
+function getJWTSecret() {
+  // Validate JWT_SECRET in production at runtime, not build time
+  if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required in production')
+  }
+  return new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret-for-dev')
 }
-
-const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret-for-dev')
 
 export interface SessionUser {
   id: string
