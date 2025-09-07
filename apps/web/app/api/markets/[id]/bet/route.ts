@@ -256,7 +256,14 @@ export async function POST(
     }
     
     return NextResponse.json(
-      { error: 'Failed to place bet. Please try again.' },
+      { 
+        error: 'Failed to place bet. Please try again.',
+        debug: {
+          step,
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : 'No stack') : undefined
+        }
+      },
       { status: 500 }
     )
   } finally {
