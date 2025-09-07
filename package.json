@@ -7,6 +7,8 @@
     "packages/*"
   ],
   "scripts": {
+    "db:export": "tsx scripts/export-from-supabase.ts",
+    "db:import": "tsx scripts/import-to-railway.ts",
     "dev": "turbo run dev",
     "build": "cd packages/db && pnpm db:generate && cd ../../apps/web && pnpm build",
     "start": "cd apps/web && PORT=${PORT:-3000} pnpm start",
@@ -20,6 +22,7 @@
     "db:seed": "cd packages/db && pnpm db:seed"
   },
   "devDependencies": {
+    "tsx": "^4.0.0",
     "turbo": "^2.0.0"
   },
   "packageManager": "pnpm@9.0.0"
