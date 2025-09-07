@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const referer = request.headers.get('referer')
     
     // Only allow requests from our own domain during development/production
-    if (origin && !origin.includes('localhost') && !origin.includes('vercel.app') && !origin.includes(process.env.VERCEL_URL || '')) {
+    if (origin && !origin.includes('localhost') && !origin.includes('railway.app') && !origin.includes('fomora.xyz')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     
