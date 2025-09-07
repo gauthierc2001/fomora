@@ -12,7 +12,7 @@ pnpm install
 
 # Set up environment
 cp env.example .env
-# Edit .env with your Supabase DATABASE_URL and JWT_SECRET
+# Edit .env with your DATABASE_URL and JWT_SECRET
 
 # Database setup
 pnpm db:push
@@ -28,7 +28,7 @@ Access the app at `http://localhost:8000`
 
 - Node.js 18+
 - pnpm 8+
-- Supabase account for database
+- PostgreSQL database
 - Solana wallet (Phantom, Solflare, or Backpack) for testing
 
 ## 🏗️ Project Structure
@@ -55,10 +55,10 @@ fomora/
 - **UI**: shadcn/ui components, Framer Motion
 - **Solana**: @solana/wallet-adapter (devnet)
 - **Backend**: Next.js API routes
-- **Database**: Supabase Postgres with Prisma ORM
+- **Database**: PostgreSQL with Prisma ORM
 - **Auth**: Sign-In With Solana (SIWS)
 - **State**: TanStack Query
-- **Deployment**: Vercel + Supabase
+- **Deployment**: Railway
 
 ## ⚙️ Environment Variables
 
@@ -85,26 +85,11 @@ NEXT_PUBLIC_APP_URL="http://localhost:8000"
 
 ## 🗄️ Database Setup
 
-### Using Supabase (Recommended)
-
-1. Create a [Supabase](https://supabase.io) project
-2. Get your database URL from Project Settings > Database
-3. Set `DATABASE_URL` in your `.env` file
-4. Run migrations:
-
 ```bash
-cd packages/db
-pnpm db:push          # Create tables
-pnpm db:seed          # Seed test data
-```
-
-### Local PostgreSQL
-
-```bash
-# Install PostgreSQL locally
-createdb fomora
-export DATABASE_URL="postgresql://username:password@localhost:5432/fomora"
+# Create tables
 pnpm db:push
+
+# Seed test data
 pnpm db:seed
 ```
 
@@ -177,48 +162,28 @@ All actions are logged in the `ActionLog` table:
 
 ## 🚀 Deployment
 
-### Vercel + Supabase (Recommended)
+### Railway Deployment
 
 1. **Database Setup**:
    ```bash
-   # Create Supabase project
-   # Copy DATABASE_URL to Vercel environment variables
+   # Create PostgreSQL database on Railway
+   # Copy DATABASE_URL to environment variables
    ```
 
-2. **Deploy to Vercel**:
-   ```bash
-   # Connect GitHub repository to Vercel
-   # Set environment variables in Vercel dashboard
-   # Deploy automatically triggers on push
+2. **Environment Variables**:
    ```
-
-3. **Environment Variables** (Set in Vercel dashboard):
-   ```
-   DATABASE_URL=your_supabase_url
+   DATABASE_URL=your_railway_postgres_url
    JWT_SECRET=your_jwt_secret
    TEST_START_ISO=2025-09-06T11:00:00.000Z
    TEST_HOURS=48
    NEXT_PUBLIC_SOLANA_NETWORK=devnet
    ```
 
-4. **Database Migration**:
+3. **Deploy**:
    ```bash
-   # Run once after deployment
-   vercel env pull .env.local
-   pnpm db:push
-   pnpm db:seed
+   # Railway will automatically deploy on push
+   git push
    ```
-
-### Manual Deployment
-
-```bash
-# Build application
-pnpm build
-
-# Start production server
-cd apps/web
-pnpm start
-```
 
 ## 🛡️ Security Features
 
@@ -233,8 +198,6 @@ pnpm start
 
 ### Test Window Configuration
 
-Modify test duration and timing:
-
 ```typescript
 // lib/config.ts
 export function getTestStartFromEnv(): Date {
@@ -248,38 +211,7 @@ export function getTestStartFromEnv(): Date {
 // Update in multiple files:
 // - prisma/seed.ts (test markets)
 // - app/(app)/app/create/page.tsx (form options)
-// - API validation schemas
 ```
-
-### Custom Payout Logic
-
-```typescript
-// lib/utils.ts
-export function calculatePayout(
-  userBet: number,
-  userSide: 'YES' | 'NO',
-  totalYes: number,
-  totalNo: number,
-  winSide: 'YES' | 'NO'
-): number {
-  // Custom payout calculation
-}
-```
-
-## 🎨 UI Customization
-
-The app uses a custom design system based on Fomora brand colors:
-
-```css
-/* styles/globals.css */
-:root {
-  --fomora-red: #E6232E;
-  --fomora-red-dark: #B8131C;
-  --fomora-red-light: #FF4D57;
-}
-```
-
-Modify `tailwind.config.ts` for theme changes.
 
 ## 📝 API Reference
 
@@ -310,45 +242,12 @@ pnpm test
 
 # E2E tests (Playwright)
 pnpm test:e2e
-
-# Manual testing checklist:
-# ✅ Wallet connection (multiple wallets)
-# ✅ Point crediting (first-time only)
-# ✅ Market creation (fee deduction)
-# ✅ Betting (odds updates, payout calculation)
-# ✅ Admin resolution (proper distribution)
-# ✅ CSV export (correct formatting)
 ```
-
-## 🚨 Production Considerations
-
-### Performance
-- Database indexing for large user bases
-- Redis caching for market data
-- CDN for static assets
-- Connection pooling for database
-
-### Security
-- Rate limiting implementation
-- CORS configuration
-- Environment variable validation
-- Audit logging enhancement
-
-### Monitoring
-- Error tracking (Sentry)
-- Performance monitoring
-- Database query optimization
-- User analytics
 
 ## 📞 Support
 
 - **Documentation**: This README and inline code comments
 - **Issues**: GitHub Issues for bug reports
-- **Community**: Discord/Telegram for discussions
-
-## 📄 License
-
-This project is for demonstration purposes. Modify licensing as needed for production use.
 
 ---
 
