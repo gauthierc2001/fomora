@@ -261,16 +261,7 @@ export async function POST(
         await markets.set(market.id, updatedMarketData)
       }
 
-      // Update bet cache with proper structure
-      const betData = {
-        id: newBet.id,
-        userId: newBet.userId,
-        marketId: newBet.marketId,
-        side: newBet.side,
-        amount: newBet.amount,
-        createdAt: newBet.createdAt
-      }
-      await bets.set(newBet.id, betData)
+      // Bet is already created in database transaction above - no need for additional storage
 
       // Log action
       await logAction('BET', {
