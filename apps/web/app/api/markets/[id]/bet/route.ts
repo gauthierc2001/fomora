@@ -179,9 +179,9 @@ export async function POST(
       currentUser.totalBets = Math.max(0, currentUser.totalBets - 1)
       currentUser.totalWagered = Math.max(0, currentUser.totalWagered - amount)
       if (side === 'YES') {
-        market.yesPool = Math.max(0, market.yesPool - amount)
+        market.yesPool = Math.max(0, market.yesPool - netAmount)
       } else {
-        market.noPool = Math.max(0, market.noPool - amount)
+        market.noPool = Math.max(0, market.noPool - netAmount)
       }
       throw error
     }

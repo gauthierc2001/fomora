@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { markets, fomoMarkets } from '@/lib/storage'
+import { checkAndRenewMarkets } from '@/lib/market-renewal'
 
 export async function GET(
   request: NextRequest,
@@ -52,6 +53,9 @@ export async function GET(
       console.log(`Market ${id} not found in ${markets.size} regular markets and ${fomoMarkets.size} FOMO markets`)
       return NextResponse.json({ error: 'Market not found' }, { status: 404 })
     }
+
+    // Check for market renewals in the background
+    checkAndRenewMarkets().catch(console.error)
     
     return NextResponse.json(market)
   } catch (error) {

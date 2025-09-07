@@ -443,11 +443,23 @@ export default function MarketPage({ params }: MarketPageProps) {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Created</span>
-                <span className="font-semibold">{new Date(market.createdAt).toLocaleString()}</span>
+                <span className="font-semibold">{new Date(market.createdAt).toLocaleString('fr-FR', { 
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Closes</span>
-                <span className="font-semibold">{new Date(market.closesAt).toLocaleString()}</span>
+                <span className="font-semibold">{new Date(market.closesAt).toLocaleString('fr-FR', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}</span>
               </div>
             </CardContent>
           </Card>
