@@ -68,45 +68,45 @@ async function initializeAllMarkets() {
     console.log('Current prices:', prices)
     
     const now = new Date()
-    const in24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000)
-    const in48Hours = new Date(now.getTime() + 48 * 60 * 60 * 1000)
-    const in72Hours = new Date(now.getTime() + 72 * 60 * 60 * 1000)
+    const in15Minutes = new Date(now.getTime() + 15 * 60 * 1000)
+    const in30Minutes = new Date(now.getTime() + 30 * 60 * 1000)
+    const in1Hour = new Date(now.getTime() + 60 * 60 * 1000)
 
     const liveMarkets = [
       {
-        question: `Will Bitcoin break $${Math.ceil((prices.bitcoin * 1.15) / 1000) * 1000} this week?`,
-        description: `Bitcoin needs to reach or exceed $${Math.ceil((prices.bitcoin * 1.15) / 1000) * 1000} (current: $${Math.round(prices.bitcoin)}) on any major exchange before market close.`,
-        category: "Crypto",
-        closesAt: in72Hours,
-        initialPool: 5000
-      },
-      {
-        question: "Will ChatGPT reach 200M daily users?",
-        description: "OpenAI must officially announce or reliable sources must confirm ChatGPT reaching 200M daily active users.",
-        category: "AI",
-        closesAt: in48Hours,
-        initialPool: 3000
-      },
-      {
-        question: `Will Solana reach $${Math.ceil((prices.solana * 1.25) / 1) * 1} in 24h?`,
-        description: `Solana price must reach or exceed $${Math.ceil((prices.solana * 1.25) / 1) * 1} (current: $${Math.round(prices.solana)}) on major exchanges within 24 hours.`,
-        category: "Crypto",
-        closesAt: in24Hours,
-        initialPool: 4000
-      },
-      {
-        question: "Will Reddit launch their NFT marketplace?",
-        description: "Reddit must officially announce or launch their dedicated NFT marketplace platform.",
-        category: "NFT",
-        closesAt: in72Hours,
+        question: `Will BTC pump ${Math.round(prices.bitcoin * 0.01)}$ in 15min?`,
+        description: `Bitcoin price must increase by $${Math.round(prices.bitcoin * 0.01)} or more from current $${Math.round(prices.bitcoin)} in the next 15 minutes.`,
+        category: "FOMO",
+        closesAt: in15Minutes,
         initialPool: 2000
       },
       {
-        question: "Will GTA 6 trailer hit 100M views in 24h?",
-        description: "The official GTA 6 trailer must reach 100M views on YouTube within 24 hours of release.",
-        category: "Gaming",
-        closesAt: in48Hours,
-        initialPool: 3500
+        question: "Next big X crypto trend?",
+        description: "Will any crypto-related hashtag trend in top 3 on X (Twitter) in the next 30 minutes?",
+        category: "Viral",
+        closesAt: in30Minutes,
+        initialPool: 1500
+      },
+      {
+        question: `SOL to ${Math.round(prices.solana * 1.05)} soon?`,
+        description: `Solana must hit $${Math.round(prices.solana * 1.05)} (current: $${Math.round(prices.solana)}) in the next hour.`,
+        category: "FOMO",
+        closesAt: in1Hour,
+        initialPool: 3000
+      },
+      {
+        question: "Memecoin 50% pump incoming?",
+        description: "Any memecoin in top 100 must pump 50% or more in the next 30 minutes.",
+        category: "Hype",
+        closesAt: in30Minutes,
+        initialPool: 2500
+      },
+      {
+        question: "Influencer FUD in 1h?",
+        description: "Any crypto influencer with 100k+ followers posts FUD about current market in next hour.",
+        category: "Buzz",
+        closesAt: in1Hour,
+        initialPool: 1000
       }
     ]
 
