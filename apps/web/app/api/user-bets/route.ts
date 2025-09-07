@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
     // Get all user bets
     const userBets = Array.from(bets.values())
-      .filter(bet => bet.userId === session.id)
+      .filter(bet => bet.userId === session.walletAddress)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
     // Enrich bets with market information
