@@ -195,8 +195,7 @@ export async function POST(
           marketId: actualMarketId,
           side,
           amount,
-          fee: penaltyFee,
-          marketType: isFomoMarket ? 'FOMO' : 'REGULAR'
+          fee: penaltyFee
         })
         
         const newBet = await tx.bet.create({
