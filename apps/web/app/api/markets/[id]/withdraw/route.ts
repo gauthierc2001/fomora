@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSessionFromRequest } from '@/lib/auth'
 import { markets, bets, users, fomoMarkets } from '@/lib/storage'
+import { prisma } from '@fomora/db'
 
 const withdrawBetSchema = z.object({
   betId: z.string()
@@ -24,19 +25,25 @@ export async function POST(
     const { betId } = withdrawBetSchema.parse(body)
 
     // Get bet
-    const bet = bets.get(betId)
+    const bet = await bets.get(betId)
     if (!bet) {
       return NextResponse.json({ error: 'Bet not found' }, { status: 404 })
     }
 
     // Verify bet belongs to user
-    const user = users.get(session.walletAddress)
+    const user = await users.get(session.walletAddress)
     if (!user || bet.userId !== user.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
     // Get market from both regular and FOMO markets
-    const market = markets.get(marketId) || fomoMarkets.get(marketId)
+    let market = await markets.get(marketId)
+    if (!market) {
+      const hasFomoMarket = await fomoMarkets.has(marketId)
+      if (hasFomoMarket) {
+        market = await fomoMarkets.get(marketId)
+      }
+    }
     if (!market) {
       return NextResponse.json({ error: 'Market not found' }, { status: 404 })
     }
@@ -97,17 +104,21 @@ export async function POST(
       market.noPool = Math.max(0, market.noPool - bet.amount)
     }
 
-    // Remove bet
-    bets.delete(betId)
-
     // Save changes
-    users.set(session.walletAddress, user)
+    await users.set(session.walletAddress, user)
+    
     // Save to correct market storage
-    if (fomoMarkets.has(market.id)) {
-      fomoMarkets.set(market.id, market)
+    const isFomoMarket = await fomoMarkets.has(market.id)
+    if (isFomoMarket) {
+      await fomoMarkets.set(market.id, market)
     } else {
-      markets.set(market.id, market)
+      await markets.set(market.id, market)
     }
+    
+    // Remove bet from storage
+    await prisma.bet.delete({
+      where: { id: betId }
+    })
 
     console.log(`✅ Bet withdrawn: ${refundAmount} points refunded (${penalty} penalty)`)
     console.log('=== WITHDRAW BET API END ===')

@@ -189,29 +189,63 @@ export const markets = {
   },
 
   async set(id: string, marketData: MarketType): Promise<void> {
-    await prisma.market.upsert({
-      where: { id },
-      create: {
-        id: marketData.id,
-        slug: marketData.slug,
-        question: marketData.question,
-        description: marketData.description,
-        category: marketData.category,
-        createdBy: marketData.createdBy,
-        status: marketData.status as any,
-        closesAt: marketData.closesAt,
-        yesPool: marketData.yesPool,
-        noPool: marketData.noPool
-      },
-      update: {
-        question: marketData.question,
-        description: marketData.description,
-        category: marketData.category,
-        status: marketData.status as any,
-        yesPool: marketData.yesPool,
-        noPool: marketData.noPool
+    try {
+      await prisma.market.upsert({
+        where: { id },
+        create: {
+          id: marketData.id,
+          slug: marketData.slug,
+          question: marketData.question,
+          description: marketData.description,
+          category: marketData.category,
+          createdBy: marketData.createdBy,
+          status: marketData.status as any,
+          closesAt: marketData.closesAt,
+          yesPool: marketData.yesPool,
+          noPool: marketData.noPool
+        },
+        update: {
+          question: marketData.question,
+          description: marketData.description,
+          category: marketData.category,
+          status: marketData.status as any,
+          yesPool: marketData.yesPool,
+          noPool: marketData.noPool
+        }
+      })
+    } catch (error) {
+      // If there's a prepared statement error, disconnect and reconnect
+      if (error instanceof Error && error.message.includes('prepared statement')) {
+        await prisma.$disconnect()
+        await prisma.$connect()
+        // Retry the operation
+        await prisma.market.upsert({
+          where: { id },
+          create: {
+            id: marketData.id,
+            slug: marketData.slug,
+            question: marketData.question,
+            description: marketData.description,
+            category: marketData.category,
+            createdBy: marketData.createdBy,
+            status: marketData.status as any,
+            closesAt: marketData.closesAt,
+            yesPool: marketData.yesPool,
+            noPool: marketData.noPool
+          },
+          update: {
+            question: marketData.question,
+            description: marketData.description,
+            category: marketData.category,
+            status: marketData.status as any,
+            yesPool: marketData.yesPool,
+            noPool: marketData.noPool
+          }
+        })
+      } else {
+        throw error
       }
-    })
+    }
   },
 
   async size(): Promise<number> {
@@ -256,16 +290,37 @@ export const bets = {
   },
 
   async set(id: string, betData: BetType): Promise<void> {
-    await prisma.bet.create({
-      data: {
-        id: betData.id,
-        userId: betData.userId,
-        marketId: betData.marketId,
-        side: betData.side as any,
-        amount: betData.amount,
-        fee: 0 // Default fee
+    try {
+      await prisma.bet.create({
+        data: {
+          id: betData.id,
+          userId: betData.userId,
+          marketId: betData.marketId,
+          side: betData.side as any,
+          amount: betData.amount,
+          fee: 0 // Default fee
+        }
+      })
+    } catch (error) {
+      // If there's a prepared statement error, disconnect and reconnect
+      if (error instanceof Error && error.message.includes('prepared statement')) {
+        await prisma.$disconnect()
+        await prisma.$connect()
+        // Retry the operation
+        await prisma.bet.create({
+          data: {
+            id: betData.id,
+            userId: betData.userId,
+            marketId: betData.marketId,
+            side: betData.side as any,
+            amount: betData.amount,
+            fee: 0 // Default fee
+          }
+        })
+      } else {
+        throw error
       }
-    })
+    }
   },
 
   async size(): Promise<number> {
@@ -311,34 +366,73 @@ export const fomoMarkets = {
   },
 
   async set(id: string, fomoMarketData: any): Promise<void> {
-    await prisma.fomoMarket.upsert({
-      where: { id },
-      create: {
-        id: fomoMarketData.id,
-        question: fomoMarketData.question,
-        description: fomoMarketData.description,
-        category: fomoMarketData.category,
-        status: fomoMarketData.status || 'OPEN',
-        closesAt: fomoMarketData.closesAt,
-        yesPool: fomoMarketData.yesPool || 0,
-        noPool: fomoMarketData.noPool || 0,
-        totalVolume: fomoMarketData.totalVolume || 0,
-        participants: fomoMarketData.participants || 0,
-        trending: fomoMarketData.trending || false,
-        slug: fomoMarketData.slug
-      },
-      update: {
-        question: fomoMarketData.question,
-        description: fomoMarketData.description,
-        category: fomoMarketData.category,
-        status: fomoMarketData.status,
-        yesPool: fomoMarketData.yesPool,
-        noPool: fomoMarketData.noPool,
-        totalVolume: fomoMarketData.totalVolume,
-        participants: fomoMarketData.participants,
-        trending: fomoMarketData.trending
+    try {
+      await prisma.fomoMarket.upsert({
+        where: { id },
+        create: {
+          id: fomoMarketData.id,
+          question: fomoMarketData.question,
+          description: fomoMarketData.description,
+          category: fomoMarketData.category,
+          status: fomoMarketData.status || 'OPEN',
+          closesAt: fomoMarketData.closesAt,
+          yesPool: fomoMarketData.yesPool || 0,
+          noPool: fomoMarketData.noPool || 0,
+          totalVolume: fomoMarketData.totalVolume || 0,
+          participants: fomoMarketData.participants || 0,
+          trending: fomoMarketData.trending || false,
+          slug: fomoMarketData.slug
+        },
+        update: {
+          question: fomoMarketData.question,
+          description: fomoMarketData.description,
+          category: fomoMarketData.category,
+          status: fomoMarketData.status,
+          yesPool: fomoMarketData.yesPool,
+          noPool: fomoMarketData.noPool,
+          totalVolume: fomoMarketData.totalVolume,
+          participants: fomoMarketData.participants,
+          trending: fomoMarketData.trending
+        }
+      })
+    } catch (error) {
+      // If there's a prepared statement error, disconnect and reconnect
+      if (error instanceof Error && error.message.includes('prepared statement')) {
+        await prisma.$disconnect()
+        await prisma.$connect()
+        // Retry the operation
+        await prisma.fomoMarket.upsert({
+          where: { id },
+          create: {
+            id: fomoMarketData.id,
+            question: fomoMarketData.question,
+            description: fomoMarketData.description,
+            category: fomoMarketData.category,
+            status: fomoMarketData.status || 'OPEN',
+            closesAt: fomoMarketData.closesAt,
+            yesPool: fomoMarketData.yesPool || 0,
+            noPool: fomoMarketData.noPool || 0,
+            totalVolume: fomoMarketData.totalVolume || 0,
+            participants: fomoMarketData.participants || 0,
+            trending: fomoMarketData.trending || false,
+            slug: fomoMarketData.slug
+          },
+          update: {
+            question: fomoMarketData.question,
+            description: fomoMarketData.description,
+            category: fomoMarketData.category,
+            status: fomoMarketData.status,
+            yesPool: fomoMarketData.yesPool,
+            noPool: fomoMarketData.noPool,
+            totalVolume: fomoMarketData.totalVolume,
+            participants: fomoMarketData.participants,
+            trending: fomoMarketData.trending
+          }
+        })
+      } else {
+        throw error
       }
-    })
+    }
   },
 
   async size(): Promise<number> {
