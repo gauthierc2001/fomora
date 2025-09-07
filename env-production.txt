@@ -1,8 +1,8 @@
 # Production Environment Variables for Vercel
 # Copy these to Vercel Dashboard → Settings → Environment Variables
 
-# Database (Supabase) - ALREADY CONFIGURED
-DATABASE_URL="postgresql://postgres:h9iD9ejrgh*#vAv@db.klucdodkixhvbwahprev.supabase.co:5432/postgres"
+# Database (Supabase) - TRANSACTION POOLER FOR VERCEL SERVERLESS
+DATABASE_URL="postgresql://postgres.klucdodkixhvbwahprev:h9iD9ejrgh*#vAv@aws-1-eu-north-1.pooler.supabase.com:6543/postgres"
 
 # JWT Secret for session management - ALREADY CONFIGURED
 JWT_SECRET="FoMoRa2025PredictionMarketJWTSecretKey48HourTestBetOnInternet"
