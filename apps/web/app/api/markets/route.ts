@@ -130,8 +130,8 @@ export async function GET(request: NextRequest) {
     const limitNum = parseInt(limit)
     const skip = (pageNum - 1) * limitNum
     
-    // Get all markets from in-memory storage
-    let allMarkets = Array.from(markets.values())
+    // Get all markets from database storage
+    let allMarkets = await markets.values()
     console.log(`Total markets in storage: ${allMarkets.length}`)
     console.log(`Filtering by category: "${category || 'none'}"`)
     
@@ -160,13 +160,14 @@ export async function GET(request: NextRequest) {
     const paginatedMarkets = allMarkets.slice(skip, skip + limitNum)
     
     // Format markets with creator info and bet count
+    const allBets = await bets.values()
     const formattedMarkets = paginatedMarkets.map(market => ({
       ...market,
       creator: {
         walletAddress: market.createdBy === 'system' ? 'System' : market.createdBy
       },
       _count: {
-        bets: Array.from(bets.values()).filter(bet => bet.marketId === market.id).length
+        bets: allBets.filter(bet => bet.marketId === market.id).length
       }
     }))
     

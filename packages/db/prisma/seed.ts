@@ -3,33 +3,33 @@ import { createHash } from 'crypto'
 
 const prisma = new PrismaClient()
 
-// Test window: Sept 6, 2025 12:00 Europe/Lisbon (UTC+1 = UTC+0 in winter, UTC+1 in summer)
-const TEST_START = new Date('2025-09-06T11:00:00.000Z') // 12:00 Lisbon time
+// Test window: Current time + 48 hours
+const TEST_START = new Date() // Now
 const TEST_END = new Date(TEST_START.getTime() + 48 * 60 * 60 * 1000) // 48 hours later
 
 const testMarkets = [
   {
-    question: "Will 'NPC streamer' hashtag trend Top 10 on X (global) by Sun 18:00?",
+    question: "Will 'NPC streamer' hashtag trend Top 10 on X (global) in the next 6 hours?",
     category: "Social Media",
-    closesAt: new Date('2025-09-07T17:00:00.000Z'), // Sun 18:00 Lisbon
+    closesAt: new Date(Date.now() + 6 * 60 * 60 * 1000), // 6 hours from now
     description: "Based on X trending hashtags globally, must be exact phrase 'NPC streamer' in top 10."
   },
   {
-    question: "Will ETH flip SOL in 24h trading volume by Sun 20:00?",
+    question: "Will ETH flip SOL in 24h trading volume in the next 12 hours?",
     category: "Crypto",
-    closesAt: new Date('2025-09-07T19:00:00.000Z'),
+    closesAt: new Date(Date.now() + 12 * 60 * 60 * 1000), // 12 hours from now
     description: "Ethereum 24h trading volume must exceed Solana's 24h volume on CoinGecko at resolution time."
   },
   {
-    question: "Will Bitcoin 1h candle at Sun 21:00 close green?",
+    question: "Will Bitcoin close above $100k in the next 24 hours?",
     category: "Crypto",
-    closesAt: new Date('2025-09-07T20:00:00.000Z'),
-    description: "BTC/USD 1-hour candle on major exchanges (Binance/Coinbase) closing higher than opening."
+    closesAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
+    description: "BTC/USD price must close above $100,000 on major exchanges (Binance/Coinbase)."
   },
   {
-    question: "Will 'Skibidi' keyword hit 50k new TikTok videos by Mon 09:00?",
+    question: "Will 'Skibidi' keyword hit 50k new TikTok videos in the next 18 hours?",
     category: "Social Media",
-    closesAt: new Date('2025-09-08T08:00:00.000Z'),
+    closesAt: new Date(Date.now() + 18 * 60 * 60 * 1000), // 18 hours from now
     description: "TikTok videos containing 'Skibidi' in title/description uploaded during test period."
   },
   {
