@@ -29,14 +29,24 @@ export async function GET(request: NextRequest) {
     console.log(`Leaderboard API: ${await users.size()} total users in storage`)
     
     // Convert users map to array and sort by points, then by creation date
-    let allUsers = (await users.values()).sort((a, b) => {
-      // Primary sort: points (descending)
-      if (b.pointsBalance !== a.pointsBalance) {
-        return b.pointsBalance - a.pointsBalance
-      }
-      // Secondary sort: creation date (ascending - earlier users rank higher)
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    })
+    let allUsers = (await users.values())
+      .filter(user => {
+        // Filter out test users (0x addresses) and system users
+        const isTestUser = user.walletAddress.startsWith('0x')
+        const isSystemUser = user.id.includes('system') || 
+                           user.walletAddress.includes('system') ||
+                           user.displayName?.toLowerCase().includes('system')
+        
+        return !isTestUser && !isSystemUser
+      })
+      .sort((a, b) => {
+        // Primary sort: points (descending)
+        if (b.pointsBalance !== a.pointsBalance) {
+          return b.pointsBalance - a.pointsBalance
+        }
+        // Secondary sort: creation date (ascending - earlier users rank higher)
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      })
     
     // Apply search filter if provided
     if (search) {

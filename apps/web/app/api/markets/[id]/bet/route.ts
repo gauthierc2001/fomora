@@ -34,13 +34,25 @@ export async function POST(
     // Add detailed error tracking
     let step = 'unknown'
 
-    // Get market
-    step = 'getting market'
-    let market = await markets.get(marketId) || await fomoMarkets.get(marketId)
-    console.log('Market found:', !!market)
+    // Get market from database directly to ensure it exists
+    step = 'getting market from database'
+    let market = await prisma.market.findUnique({ where: { id: marketId } })
+    let isFomoMarket = false
     
     if (!market) {
-      console.log(`Market ${marketId} not found`)
+      // Try FOMO market
+      const fomoMarket = await prisma.fomoMarket.findUnique({ where: { id: marketId } })
+      if (fomoMarket) {
+        market = fomoMarket
+        isFomoMarket = true
+      }
+    }
+    
+    console.log('Market found:', !!market)
+    console.log('Is FOMO market:', isFomoMarket)
+    
+    if (!market) {
+      console.log(`Market ${marketId} not found in database`)
       return NextResponse.json({ error: 'Market not found' }, { status: 404 })
     }
 
@@ -56,11 +68,17 @@ export async function POST(
     const closingTime = new Date(market.closesAt)
     if (now >= closingTime) {
       console.log(`Market has closed at ${closingTime}, current time: ${now}`)
-      market.status = 'CLOSED'
-      if (await fomoMarkets.has(market.id)) {
-        await fomoMarkets.set(market.id, market)
+      // Update market status in database
+      if (isFomoMarket) {
+        await prisma.fomoMarket.update({
+          where: { id: market.id },
+          data: { status: 'CLOSED' }
+        })
       } else {
-        await markets.set(market.id, market)
+        await prisma.market.update({
+          where: { id: market.id },
+          data: { status: 'CLOSED' }
+        })
       }
       return NextResponse.json({ error: 'Market has closed' }, { status: 400 })
     }
@@ -88,9 +106,8 @@ export async function POST(
     // Create bet ID
     const betId = `bet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
-    // Check if it's a FOMO market before transaction
-    step = 'checking fomo market'
-    const isFomoMarket = await fomoMarkets.has(market.id)
+    // We already determined if it's a FOMO market above
+    step = 'preparing transaction'
 
     // Process bet in transaction
     step = 'starting transaction'
