@@ -1,5 +1,8 @@
 import { prisma } from '@fomora/db'
 import { validateMarket, validateClosingTime, isTimeSensitive } from '@/lib/market-validator'
+import { getMarketImage } from '@/lib/market-images'
+import { createHash } from 'crypto'
+import { MarketStatus } from '@prisma/client'
 
 async function getCryptoPrices() {
   try {
@@ -321,6 +324,9 @@ async function initializeRegularMarkets() {
       const yesPool = Math.floor(totalPool * yesRatio)
       const noPool = totalPool - yesPool
 
+      // Get market image if available
+      const image = await getMarketImage(marketData.question, marketData.description)
+
       const market = {
         id: createMarketId(marketData.question, marketData.category),
         slug: createSlug(marketData.question),
@@ -328,12 +334,13 @@ async function initializeRegularMarkets() {
         description: marketData.description,
         category: marketData.category,
         createdBy: systemUser.id,
-        status: 'OPEN',
+        status: MarketStatus.OPEN,
         closesAt: marketData.closesAt,
         createdAt: now,
         yesPool,
         noPool,
-        createFee: 100
+        createFee: 100,
+        image: image || undefined
       }
 
       await prisma.market.create({
