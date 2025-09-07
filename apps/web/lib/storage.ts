@@ -1,7 +1,7 @@
 import { prisma } from '@fomora/db'
 
-// Database-backed storage using Supabase
-console.log('🚀 Using Supabase database storage')
+// Database-backed storage using PostgreSQL
+console.log('🚀 Using PostgreSQL database storage')
 
 // Export types for backward compatibility
 export type UserType = {
@@ -268,6 +268,11 @@ export const markets = {
       outcome: market.resolution as any,
       slug: market.slug
     }))
+  },
+
+  async entries(): Promise<[string, MarketType][]> {
+    const markets = await this.values()
+    return markets.map(market => [market.id, market])
   }
 }
 
@@ -298,7 +303,7 @@ export const bets = {
           marketId: betData.marketId,
           side: betData.side as any,
           amount: betData.amount,
-          fee: 0 // Default fee
+          fee: Math.floor(betData.amount * 0.01) // 1% fee
         }
       })
     } catch (error) {
@@ -314,7 +319,7 @@ export const bets = {
             marketId: betData.marketId,
             side: betData.side as any,
             amount: betData.amount,
-            fee: 0 // Default fee
+            fee: Math.floor(betData.amount * 0.01) // 1% fee
           }
         })
       } else {
