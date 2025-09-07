@@ -91,6 +91,9 @@ export async function POST(
     // Create bet ID
     const betId = `bet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
+    // Check if it's a FOMO market before transaction
+    const isFomoMarket = await fomoMarkets.has(market.id)
+
     // Process bet in transaction
     try {
       const [updatedUser, updatedMarket, newBet] = await prisma.$transaction(async (tx) => {
@@ -106,7 +109,6 @@ export async function POST(
 
         // Update market
         let updatedMarket
-        const isFomoMarket = await fomoMarkets.has(market.id)
         if (isFomoMarket) {
           const updateData: any = {
             totalVolume: { increment: netAmount },
@@ -155,7 +157,7 @@ export async function POST(
       // Update memory state with transaction results
       await users.set(session.walletAddress, updatedUser)
       
-      if (await fomoMarkets.has(market.id)) {
+      if (isFomoMarket) {
         await fomoMarkets.set(market.id, updatedMarket)
       } else {
         await markets.set(market.id, updatedMarket)
