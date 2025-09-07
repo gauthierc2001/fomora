@@ -184,7 +184,8 @@ export const markets = {
       closesAt: new Date(market.closesAt),
       createdBy: market.createdBy,
       outcome: market.resolution as any,
-      slug: market.slug
+      slug: market.slug,
+      image: market.image || undefined
     }
   },
 
@@ -266,7 +267,8 @@ export const markets = {
       closesAt: new Date(market.closesAt),
       createdBy: market.createdBy,
       outcome: market.resolution as any,
-      slug: market.slug
+      slug: market.slug,
+      image: market.image || undefined
     }))
   },
 
@@ -366,7 +368,9 @@ export const fomoMarkets = {
       totalVolume: fomoMarket.totalVolume,
       participants: fomoMarket.participants,
       trending: fomoMarket.trending,
-      slug: fomoMarket.slug
+      slug: fomoMarket.slug,
+      image: fomoMarket.image || undefined,
+      createdBy: fomoMarket.createdBy || 'fomo-system'
     }
   },
 
@@ -460,6 +464,7 @@ export const fomoMarkets = {
       participants: fomoMarket.participants,
       trending: fomoMarket.trending,
       slug: fomoMarket.slug,
+      image: fomoMarket.image || undefined,
       createdBy: fomoMarket.createdBy || 'fomo-system'
     }))
   },

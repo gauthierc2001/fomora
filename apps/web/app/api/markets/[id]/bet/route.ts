@@ -106,24 +106,33 @@ export async function POST(
 
         // Update market
         let updatedMarket
-        if (await fomoMarkets.has(market.id)) {
+        const isFomoMarket = await fomoMarkets.has(market.id)
+        if (isFomoMarket) {
+          const updateData: any = {
+            totalVolume: { increment: netAmount },
+            participants: { increment: 1 }
+          }
+          if (side === 'YES') {
+            updateData.yesPool = { increment: netAmount }
+          } else {
+            updateData.noPool = { increment: netAmount }
+          }
+          
           updatedMarket = await tx.fomoMarket.update({
             where: { id: market.id },
-            data: {
-              yesPool: side === 'YES' ? { increment: netAmount } : undefined,
-              noPool: side === 'NO' ? { increment: netAmount } : undefined,
-              totalVolume: { increment: netAmount },
-              participants: { increment: 1 }
-            }
+            data: updateData
           })
         } else {
+          const updateData: any = {}
+          if (side === 'YES') {
+            updateData.yesPool = { increment: netAmount }
+          } else {
+            updateData.noPool = { increment: netAmount }
+          }
+          
           updatedMarket = await tx.market.update({
             where: { id: market.id },
-            data: {
-              yesPool: side === 'YES' ? { increment: netAmount } : undefined,
-              noPool: side === 'NO' ? { increment: netAmount } : undefined,
-              totalVolume: { increment: netAmount }
-            }
+            data: updateData
           })
         }
 
@@ -164,17 +173,17 @@ export async function POST(
         fee: penaltyFee
       }, user.id, request)
 
-      console.log(`✅ Bet placed successfully: ${user.walletAddress.slice(0, 8)}... bet ${amount} points on ${side}`)
-      console.log(`New user balance: ${user.pointsBalance}`)
-      console.log(`Market pools - YES: ${market.yesPool}, NO: ${market.noPool}`)
+      console.log(`✅ Bet placed successfully: ${updatedUser.walletAddress.slice(0, 8)}... bet ${amount} points on ${side}`)
+      console.log(`New user balance: ${updatedUser.pointsBalance}`)
+      console.log(`Market pools - YES: ${updatedMarket.yesPool}, NO: ${updatedMarket.noPool}`)
 
       return NextResponse.json({
         success: true,
         betId,
-        newBalance: user.pointsBalance,
+        newBalance: updatedUser.pointsBalance,
         marketPools: {
-          yesPool: market.yesPool,
-          noPool: market.noPool
+          yesPool: updatedMarket.yesPool,
+          noPool: updatedMarket.noPool
         },
         penaltyFee,
         netAmount

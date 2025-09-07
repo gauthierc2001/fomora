@@ -109,9 +109,28 @@ export default function MarketPage({ params }: MarketPageProps) {
       return { previousMarket }
     },
     onSuccess: (data) => {
-      console.log('Bet mutation success, invalidating queries...')
-      queryClient.invalidateQueries({ queryKey: ['market', id] })
-      queryClient.invalidateQueries({ queryKey: ['user'] })
+      console.log('Bet mutation success, updating UI with real data...')
+      
+      // Update market data with real response
+      queryClient.setQueryData(['market', id], (old: any) => {
+        if (!old) return old
+        return {
+          ...old,
+          yesPool: data.marketPools.yesPool,
+          noPool: data.marketPools.noPool
+        }
+      })
+      
+      // Update user balance with real response
+      queryClient.setQueryData(['user'], (old: any) => {
+        if (!old) return old
+        return {
+          ...old,
+          pointsBalance: data.newBalance
+        }
+      })
+      
+      // Refetch user bets to show new bet
       refetchUserBets()
       setBetAmount('')
       setSelectedSide(null)
@@ -187,8 +206,8 @@ export default function MarketPage({ params }: MarketPageProps) {
     }
   }
 
-  const formatDate = (date: string | Date) => {
-    if (!date) return 'Invalid date'
+  const formatDate = (date: string | Date | null | undefined) => {
+    if (!date) return 'No date'
     
     try {
       const target = typeof date === 'string' ? new Date(date) : date
