@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     // Set cookie manually as backup
     response.cookies.set('session', sessionToken, {
       httpOnly: true,
-      secure: false, // Allow HTTP for localhost
+      secure: process.env.NODE_ENV === 'production', // Secure in production, allow HTTP for localhost
       sameSite: 'lax',
       maxAge: 60 * 60 * 24, // 24 hours
       path: '/'

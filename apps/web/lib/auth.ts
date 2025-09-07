@@ -22,7 +22,7 @@ export async function createSession(user: SessionUser) {
 
   cookies().set('session', token, {
     httpOnly: true,
-    secure: false, // Disable secure for localhost
+    secure: process.env.NODE_ENV === 'production', // Secure in production, allow HTTP for localhost
     sameSite: 'lax',
     maxAge: 60 * 60 * 24, // 24 hours
     path: '/',
