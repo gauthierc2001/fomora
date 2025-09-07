@@ -7,19 +7,19 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "cd apps/web && pnpm dev",
-    "build": "pnpm db:generate && cd apps/web && pnpm build",
-    "start": "cd apps/web && pnpm start",
-    "test": "cd apps/web && pnpm test",
-    "lint": "cd apps/web && pnpm lint",
-    "clean": "rm -rf apps/web/.next && rm -rf apps/web/dist",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
     "db:generate": "cd packages/db && pnpm db:generate",
     "db:push": "cd packages/db && pnpm db:push",
     "db:migrate": "cd packages/db && pnpm db:migrate",
     "db:studio": "cd packages/db && pnpm db:studio",
-    "db:seed": "cd packages/db && pnpm db:seed",
-    "deploy": "vercel --prod"
+    "db:seed": "cd packages/db && pnpm db:seed"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "turbo": "^2.0.0"
+  },
   "packageManager": "pnpm@8.15.0"
 }

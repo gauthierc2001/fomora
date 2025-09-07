@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     console.log(`Returning ${leaderboard.length} users for leaderboard`)
     
     // Get user's rank if authenticated
-    let userRank: number | null = null
+    let userRank = null
     if (session) {
       const userIndex = allUsers.findIndex(u => u.id === session.id)
       if (userIndex !== -1) {

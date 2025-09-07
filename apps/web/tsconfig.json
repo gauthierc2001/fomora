@@ -26,12 +26,7 @@
     },
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
-    "noImplicitAny": false,
-    "strictNullChecks": false,
-    "strictFunctionTypes": false,
-    "noImplicitReturns": false,
-    "noImplicitThis": false,
+    "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -44,9 +39,7 @@
       "dom",
       "dom.iterable",
       "esnext"
-    ],
-    "target": "es2017",
-    "downlevelIteration": true
+    ]
   },
   "include": [
     "next-env.d.ts",

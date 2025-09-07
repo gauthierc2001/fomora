@@ -40,10 +40,10 @@ export async function POST(
     console.log(`Resolving market ${marketId} with outcome: ${outcome}`)
 
     // Update market status
-    market.status = 'RESOLVED' as any
-    ;(market as any).outcome = outcome
-    ;(market as any).resolvedAt = new Date()
-    if (reason) (market as any).resolutionReason = reason
+    market.status = 'RESOLVED'
+    market.outcome = outcome
+    market.resolvedAt = new Date()
+    if (reason) market.resolutionReason = reason
 
     // Find all bets for this market
     const marketBets = Array.from(bets.values()).filter(bet => bet.marketId === marketId)
@@ -76,7 +76,7 @@ export async function POST(
       }
 
       // Update user in storage
-      for (const [walletAddress, userData] of Array.from(users.entries())) {
+      for (const [walletAddress, userData] of users) {
         if (userData.id === user.id) {
           users.set(walletAddress, user)
           break

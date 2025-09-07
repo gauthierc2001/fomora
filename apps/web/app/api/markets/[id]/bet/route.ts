@@ -38,11 +38,11 @@ export async function POST(
       console.log(`Market ${marketId} not found, searching for similar markets...`)
       
       // Search in both regular markets and FOMO markets
-      const allMarkets = Array.from(markets.entries()).concat(Array.from(fomoMarkets.entries()))
+      const allMarkets = [...markets.entries(), ...fomoMarkets.entries()]
       
       if (marketId.includes('meme') || marketId.includes('doge')) {
         for (const [id, marketData] of allMarkets) {
-          if (id.includes('doge') && (marketData as any).question.toLowerCase().includes('dogecoin')) {
+          if (id.includes('doge') && marketData.question.toLowerCase().includes('dogecoin')) {
             console.log(`Found Dogecoin market: ${id}`)
             market = marketData
             break
@@ -50,7 +50,7 @@ export async function POST(
         }
       } else if (marketId.includes('pepe')) {
         for (const [id, marketData] of allMarkets) {
-          if (id.includes('pepe') && (marketData as any).question.toLowerCase().includes('pepe')) {
+          if (id.includes('pepe') && marketData.question.toLowerCase().includes('pepe')) {
             console.log(`Found Pepe market: ${id}`)
             market = marketData
             break
@@ -58,7 +58,7 @@ export async function POST(
         }
       } else if (marketId.includes('shib')) {
         for (const [id, marketData] of allMarkets) {
-          if (id.includes('shib') && (marketData as any).question.toLowerCase().includes('shiba')) {
+          if (id.includes('shib') && marketData.question.toLowerCase().includes('shiba')) {
             console.log(`Found Shiba market: ${id}`)
             market = marketData
             break
@@ -84,7 +84,7 @@ export async function POST(
     if (now >= closingTime) {
       console.log(`Market has closed at ${closingTime}, current time: ${now}`)
       // Auto-close expired markets
-      market.status = 'CLOSED' as any
+      market.status = 'CLOSED'
       if (fomoMarkets.has(market.id)) {
         fomoMarkets.set(market.id, market)
       } else {

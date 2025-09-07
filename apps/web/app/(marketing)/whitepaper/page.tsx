@@ -9,7 +9,7 @@ import { motion } from 'framer-motion'
 import { 
   TrendingUp, Zap, Trophy, Target, Coins, Users, BarChart3, ArrowLeft, 
   Globe, Rocket, Lock, Shield, Database, Brain, Gamepad2, 
-  DollarSign, Clock, Layers, Network
+  DollarSign, ChartLine, Clock, Layers, Network
 } from 'lucide-react'
 
 export default function WhitepaperPage() {

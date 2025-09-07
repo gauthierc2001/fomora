@@ -14,7 +14,7 @@ export async function getTestWindow(): Promise<TestWindow | null> {
     
     if (!config) return null
     
-    return config.value as unknown as TestWindow
+    return config.value as TestWindow
   } catch {
     return null
   }

@@ -1,11 +1,6 @@
 {
-  "version": 2,
+  "buildCommand": "cd apps/web && pnpm build",
   "installCommand": "pnpm install --no-frozen-lockfile",
-  "buildCommand": "pnpm --filter @fomora/db db:generate && pnpm --filter @fomora/web vercel-build",
   "outputDirectory": "apps/web/.next",
-  "functions": {
-    "apps/web/app/api/**/*.ts": {
-      "maxDuration": 10
-    }
-  }
+  "framework": "nextjs"
 }

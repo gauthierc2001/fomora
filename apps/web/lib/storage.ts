@@ -6,8 +6,7 @@ import {
   persistentFomoMarkets,
   type User,
   type Market,
-  type Bet,
-  type IPersistentStorage
+  type Bet
 } from './persistent-storage'
 
 // Export types for backward compatibility
@@ -52,12 +51,12 @@ export type BetType = {
 }
 
 // Export persistent storage as the main storage (backward compatible)
-export const users: IPersistentStorage<User> = persistentUsers
-export const markets: IPersistentStorage<Market> = persistentMarkets
-export const bets: IPersistentStorage<Bet> = persistentBets
+export const users = persistentUsers
+export const markets = persistentMarkets  
+export const bets = persistentBets
 
 // FOMO Markets - now using persistent storage instead of in-memory Map
-export const fomoMarkets: IPersistentStorage<Market> = persistentFomoMarkets
+export const fomoMarkets = persistentFomoMarkets
 
 console.log('🚀 Using persistent file-based storage')
 console.log(`📊 Loaded: ${users.size} users, ${markets.size} markets, ${bets.size} bets, ${fomoMarkets.size} FOMO markets`)

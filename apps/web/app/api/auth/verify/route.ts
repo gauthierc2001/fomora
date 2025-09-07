@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     const sessionToken = await createSession({
       id: user.id,
       walletAddress: user.walletAddress,
-      role: user.role as 'USER' | 'ADMIN',
+      role: user.role,
       pointsBalance: user.pointsBalance
     })
     

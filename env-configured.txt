@@ -1,0 +1,16 @@
+# Database (Supabase)
+DATABASE_URL="postgresql://postgres:h9iD9ejrgh*#vAv@db.klucdodkixhvbwahprev.supabase.co:5432/postgres"
+
+# JWT Secret for session management
+JWT_SECRET="FoMoRa2025PredictionMarketJWTSecretKey48HourTestBetOnInternet"
+
+# Test Configuration
+TEST_START_ISO="2025-01-15T12:00:00.000Z"
+TEST_HOURS="48"
+
+# Solana Network (devnet for testing)
+NEXT_PUBLIC_SOLANA_NETWORK="devnet"
+
+# App URLs
+NEXTAUTH_URL="http://localhost:8000"
+NEXT_PUBLIC_APP_URL="http://localhost:8000"
