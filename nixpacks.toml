@@ -7,6 +7,7 @@ cmds = ['pnpm install --no-frozen-lockfile']
 [phases.build]
 cmds = [
   'cd packages/db && pnpm db:generate',
+  'cd packages/db && pnpm db:push',
   'cd apps/web && pnpm build'
 ]
 
