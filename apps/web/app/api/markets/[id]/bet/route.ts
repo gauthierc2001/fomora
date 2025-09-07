@@ -28,17 +28,14 @@ export async function POST(
     const body = await request.json()
     console.log('Request body:', body)
     
-    try {
-      const { side, amount } = placeBetSchema.parse(body)
-      console.log(`Parsed bet: ${amount} points on ${side} for market ${marketId}`)
-    } catch (error) {
-      console.error('Invalid request body:', error)
-      return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
-    }
-
     const { side, amount } = placeBetSchema.parse(body)
+    console.log(`Parsed bet: ${amount} points on ${side} for market ${marketId}`)
+    
+    // Add detailed error tracking
+    let step = 'unknown'
 
     // Get market
+    step = 'getting market'
     let market = await markets.get(marketId) || await fomoMarkets.get(marketId)
     console.log('Market found:', !!market)
     
@@ -69,6 +66,7 @@ export async function POST(
     }
 
     // Get user
+    step = 'getting user'
     const user = await users.get(session.walletAddress)
     console.log('User found:', !!user)
     console.log('User balance:', user?.pointsBalance)
@@ -91,9 +89,11 @@ export async function POST(
     const betId = `bet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
     // Check if it's a FOMO market before transaction
+    step = 'checking fomo market'
     const isFomoMarket = await fomoMarkets.has(market.id)
 
     // Process bet in transaction
+    step = 'starting transaction'
     try {
       const [updatedUser, updatedMarket, newBet] = await prisma.$transaction(async (tx) => {
         // Update user
@@ -222,7 +222,7 @@ export async function POST(
     }
 
   } catch (error) {
-    console.error('Place bet error:', error)
+    console.error(`❌ Place bet error at step '${step}':`, error)
     
     // Determine error type and return appropriate response
     if (error instanceof z.ZodError) {
