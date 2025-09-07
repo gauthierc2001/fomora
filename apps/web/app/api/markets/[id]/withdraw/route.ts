@@ -38,10 +38,12 @@ export async function POST(
 
     // Get market from both regular and FOMO markets
     let market = await markets.get(marketId)
+    let isFomoMarket = false
     if (!market) {
       const hasFomoMarket = await fomoMarkets.has(marketId)
       if (hasFomoMarket) {
         market = await fomoMarkets.get(marketId)
+        isFomoMarket = true
       }
     }
     if (!market) {
@@ -119,7 +121,7 @@ export async function POST(
         })
 
         // Update market
-        if (await fomoMarkets.has(market.id)) {
+        if (isFomoMarket) {
           await tx.fomoMarket.update({
             where: { id: market.id },
             data: {
@@ -146,7 +148,7 @@ export async function POST(
 
       // Update in-memory storage after successful transaction
       await users.set(session.walletAddress, user)
-      if (await fomoMarkets.has(market.id)) {
+      if (isFomoMarket) {
         await fomoMarkets.set(market.id, market)
       } else {
         await markets.set(market.id, market)
