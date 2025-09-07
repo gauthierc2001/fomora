@@ -12,7 +12,8 @@
     "test:e2e": "playwright test",
     "launch-reset": "tsx scripts/launch-reset-cli.ts",
     "launch-reset:dry-run": "tsx scripts/launch-reset.ts --dry-run",
-    "launch-reset:quick": "tsx scripts/launch-reset.ts"
+    "launch-reset:quick": "tsx scripts/launch-reset.ts",
+    "populate-short-fomo": "tsx scripts/populate-short-fomo-markets.ts"
   },
   "dependencies": {
     "@fomora/db": "workspace:*",
