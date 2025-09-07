@@ -3,6 +3,9 @@ import { z } from 'zod'
 import { getSessionFromRequest } from '@/lib/auth'
 import { users } from '@/lib/storage'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 const querySchema = z.object({
   page: z.string().optional().default('1'),
   limit: z.string().optional().default('50'),

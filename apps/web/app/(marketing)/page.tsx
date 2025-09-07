@@ -8,8 +8,17 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { motion } from 'framer-motion'
 import { TrendingUp, Zap, Trophy, Target, Coins, Users, BarChart3, ArrowRight, TrendingDown, Clock, Globe, Rocket } from 'lucide-react'
+import { useState, useEffect } from 'react'
 
 export default function LandingPage() {
+  const [windowHeight, setWindowHeight] = useState(1000) // Default fallback
+
+  useEffect(() => {
+    // Set window height on client side only
+    if (typeof window !== 'undefined') {
+      setWindowHeight(window.innerHeight)
+    }
+  }, [])
   const features = [
     {
       icon: Target,
@@ -170,7 +179,7 @@ export default function LandingPage() {
                 top: '-80px',
               }}
               animate={{
-                y: [0, window?.innerHeight ? window.innerHeight + 120 : 1000],
+                y: [0, windowHeight + 120],
                 rotate: [0, 360],
                 x: [0, Math.sin(i * 0.5) * 30],
                 opacity: [0, 0.6, 0.4, 0],

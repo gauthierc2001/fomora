@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { fomoMarkets, bets } from '@/lib/storage'
 import { z } from 'zod'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 const querySchema = z.object({
   page: z.string().optional().default('1'),
   limit: z.string().optional().default('20'),
