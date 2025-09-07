@@ -187,18 +187,32 @@ export default function MarketPage({ params }: MarketPageProps) {
     }
   }
 
-  const formatDate = (date: string | Date) => {
-    if (!date) return 'Invalid date'
+  const formatDate = (date: string | Date | null | undefined) => {
+    if (!date) {
+      console.warn('formatDate called with null/undefined date')
+      return 'No date'
+    }
     
     try {
-      const target = typeof date === 'string' ? new Date(date) : date
+      let target: Date
       
-      // Validate date
-      if (!(target instanceof Date) || isNaN(target.getTime())) {
-        console.error('Invalid date:', date)
+      if (typeof date === 'string') {
+        // Handle different string formats
+        target = new Date(date)
+      } else if (date instanceof Date) {
+        target = date
+      } else {
+        console.error('Invalid date type:', typeof date, date)
         return 'Invalid date'
       }
       
+      // Validate date
+      if (isNaN(target.getTime())) {
+        console.error('Invalid date value:', date)
+        return 'Invalid date'
+      }
+      
+      // Format date
       return target.toLocaleString('en-US', {
         year: 'numeric',
         month: 'short',
@@ -209,8 +223,8 @@ export default function MarketPage({ params }: MarketPageProps) {
         timeZone: 'UTC'
       })
     } catch (error) {
-      console.error('Error formatting date:', error)
-      return 'Invalid date'
+      console.error('Error formatting date:', error, 'Date was:', date)
+      return 'Format error'
     }
   }
 
