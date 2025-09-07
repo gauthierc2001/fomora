@@ -5,7 +5,12 @@ nixPkgs = ['nodejs_20', 'pnpm']
 cmds = ['pnpm install --no-frozen-lockfile']
 
 [phases.build]
-cmds = ['pnpm build']
+cmds = [
+  'ls -la',
+  'pwd',
+  'cat turbo.json',
+  'pnpm build'
+]
 
 [start]
 cmd = 'pnpm start'
