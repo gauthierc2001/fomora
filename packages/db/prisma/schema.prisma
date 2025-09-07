@@ -62,7 +62,7 @@ model User {
   marketsCreated  Int      @default(0)
 
   // Relations
-  marketsCreated Market[]
+  markets        Market[] @relation("markets")
   bets           Bet[]
   actionLogs     ActionLog[]
 
@@ -88,7 +88,7 @@ model Market {
   txRef       String?
 
   // Relations
-  creator User @relation(fields: [createdBy], references: [id])
+  creator User @relation(fields: [createdBy], references: [id], name: "markets")
   bets    Bet[]
 
   @@map("markets")
