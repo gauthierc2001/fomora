@@ -109,6 +109,20 @@ export async function POST(
       return NextResponse.json({ error: 'Insufficient points' }, { status: 400 })
     }
 
+    // Calculate penalty fee (1% of bet amount)
+    const penaltyFee = Math.floor(amount * 0.01)
+    const netAmount = amount - penaltyFee
+
+    // Calculate potential gain/loss based on pool sizes
+    const totalPool = market.yesPool + market.noPool + netAmount
+    let potentialGain = 0
+    
+    if (side === 'YES') {
+      potentialGain = Math.floor((netAmount / (market.yesPool + netAmount)) * market.noPool)
+    } else {
+      potentialGain = Math.floor((netAmount / (market.noPool + netAmount)) * market.yesPool)
+    }
+
     // Create bet with timestamp to ensure uniqueness
     const betId = `bet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     const bet = {
@@ -117,6 +131,9 @@ export async function POST(
       marketId,
       side,
       amount,
+      netAmount,
+      penaltyFee,
+      potentialGain,
       createdAt: new Date()
     }
 
@@ -134,11 +151,11 @@ export async function POST(
       return NextResponse.json({ error: 'Insufficient points (race condition detected)' }, { status: 400 })
     }
 
-    // Update market pools (ensure they never go negative)
+    // Update market pools with net amount after penalty (ensure they never go negative)
     if (side === 'YES') {
-      market.yesPool = Math.max(0, market.yesPool + amount)
+      market.yesPool = Math.max(0, market.yesPool + netAmount)
     } else {
-      market.noPool = Math.max(0, market.noPool + amount)
+      market.noPool = Math.max(0, market.noPool + netAmount)
     }
 
     // Save all changes atomically
@@ -181,7 +198,10 @@ export async function POST(
       marketPools: {
         yesPool: market.yesPool,
         noPool: market.noPool
-      }
+      },
+      penaltyFee,
+      netAmount,
+      potentialGain
     })
   } catch (error) {
     console.error('Place bet error:', error)
