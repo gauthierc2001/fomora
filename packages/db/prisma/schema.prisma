@@ -122,3 +122,21 @@ model Config {
 
   @@map("config")
 }
+
+model FomoMarket {
+  id          String   @id @default(cuid())
+  question    String
+  description String?
+  category    String?
+  status      String   @default("OPEN")
+  createdAt   DateTime @default(now())
+  closesAt    DateTime
+  yesPool     Int      @default(0)
+  noPool      Int      @default(0)
+  totalVolume Int      @default(0)
+  participants Int     @default(0)
+  trending    Boolean  @default(false)
+  slug        String   @unique
+
+  @@map("fomo_markets")
+}

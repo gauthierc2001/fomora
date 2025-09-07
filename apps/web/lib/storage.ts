@@ -200,7 +200,111 @@ export const bets = {
   }
 }
 
-// For FOMO markets, use a simple in-memory Map for now (can be moved to DB later)
-export const fomoMarkets = new Map<string, any>()
+// Database-backed Map-like interface for FOMO markets
+export const fomoMarkets = {
+  async get(id: string): Promise<any | undefined> {
+    const fomoMarket = await prisma.fomoMarket.findUnique({
+      where: { id }
+    })
+    if (!fomoMarket) return undefined
+    
+    return {
+      id: fomoMarket.id,
+      question: fomoMarket.question,
+      description: fomoMarket.description,
+      category: fomoMarket.category,
+      status: fomoMarket.status,
+      createdAt: fomoMarket.createdAt,
+      closesAt: fomoMarket.closesAt,
+      yesPool: fomoMarket.yesPool,
+      noPool: fomoMarket.noPool,
+      totalVolume: fomoMarket.totalVolume,
+      participants: fomoMarket.participants,
+      trending: fomoMarket.trending,
+      slug: fomoMarket.slug
+    }
+  },
 
-console.log('📊 Database storage initialized')
+  async set(id: string, fomoMarketData: any): Promise<void> {
+    await prisma.fomoMarket.upsert({
+      where: { id },
+      create: {
+        id: fomoMarketData.id,
+        question: fomoMarketData.question,
+        description: fomoMarketData.description,
+        category: fomoMarketData.category,
+        status: fomoMarketData.status || 'OPEN',
+        closesAt: fomoMarketData.closesAt,
+        yesPool: fomoMarketData.yesPool || 0,
+        noPool: fomoMarketData.noPool || 0,
+        totalVolume: fomoMarketData.totalVolume || 0,
+        participants: fomoMarketData.participants || 0,
+        trending: fomoMarketData.trending || false,
+        slug: fomoMarketData.slug
+      },
+      update: {
+        question: fomoMarketData.question,
+        description: fomoMarketData.description,
+        category: fomoMarketData.category,
+        status: fomoMarketData.status,
+        yesPool: fomoMarketData.yesPool,
+        noPool: fomoMarketData.noPool,
+        totalVolume: fomoMarketData.totalVolume,
+        participants: fomoMarketData.participants,
+        trending: fomoMarketData.trending
+      }
+    })
+  },
+
+  async size(): Promise<number> {
+    return await prisma.fomoMarket.count()
+  },
+
+  async values(): Promise<any[]> {
+    const fomoMarkets = await prisma.fomoMarket.findMany()
+    return fomoMarkets.map(fomoMarket => ({
+      id: fomoMarket.id,
+      question: fomoMarket.question,
+      description: fomoMarket.description,
+      category: fomoMarket.category,
+      status: fomoMarket.status,
+      createdAt: fomoMarket.createdAt,
+      closesAt: fomoMarket.closesAt,
+      yesPool: fomoMarket.yesPool,
+      noPool: fomoMarket.noPool,
+      totalVolume: fomoMarket.totalVolume,
+      participants: fomoMarket.participants,
+      trending: fomoMarket.trending,
+      slug: fomoMarket.slug
+    }))
+  },
+
+  async has(id: string): Promise<boolean> {
+    const fomoMarket = await prisma.fomoMarket.findUnique({
+      where: { id }
+    })
+    return !!fomoMarket
+  },
+
+  async delete(id: string): Promise<boolean> {
+    try {
+      await prisma.fomoMarket.delete({
+        where: { id }
+      })
+      return true
+    } catch {
+      return false
+    }
+  },
+
+  async clear(): Promise<void> {
+    await prisma.fomoMarket.deleteMany()
+  },
+
+  async forEach(callback: (value: any, key: string) => void): Promise<void> {
+    const fomoMarkets = await this.values()
+    fomoMarkets.forEach(fomoMarket => callback(fomoMarket, fomoMarket.id))
+  }
+}
+
+console.log('📊 Database storage initialized (including FOMO markets)')
