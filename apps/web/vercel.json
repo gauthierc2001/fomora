@@ -3,16 +3,5 @@
   "framework": "nextjs",
   "buildCommand": "pnpm build",
   "installCommand": "cd ../.. && pnpm install --no-frozen-lockfile",
-  "outputDirectory": ".next",
-  "functions": {
-    "app/api/**/*.ts": {
-      "runtime": "nodejs18.x"
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
-    }
-  ]
+  "outputDirectory": ".next"
 }
