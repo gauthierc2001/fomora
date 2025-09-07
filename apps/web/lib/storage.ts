@@ -59,12 +59,12 @@ export const users = {
       pointsBalance: user.pointsBalance,
       creditedInitial: user.creditedInitial,
       ipHash: user.ipHash || '',
-      displayName: `User ${user.walletAddress.slice(0, 6)}`,
-      profilePicture: undefined,
+      displayName: user.displayName || `User ${user.walletAddress.slice(0, 6)}`,
+      profilePicture: user.profilePicture,
       createdAt: user.createdAt,
-      totalBets: 0, // TODO: Calculate from bets
-      totalWagered: 0, // TODO: Calculate from bets
-      marketsCreated: 0 // TODO: Calculate from markets
+      totalBets: user.totalBets || 0,
+      totalWagered: user.totalWagered || 0,
+      marketsCreated: user.marketsCreated || 0
     }
   },
 
@@ -99,12 +99,12 @@ export const users = {
       pointsBalance: user.pointsBalance,
       creditedInitial: user.creditedInitial,
       ipHash: user.ipHash || '',
-      displayName: `User ${user.walletAddress.slice(0, 6)}`,
-      profilePicture: undefined,
+      displayName: user.displayName || `User ${user.walletAddress.slice(0, 6)}`,
+      profilePicture: user.profilePicture,
       createdAt: user.createdAt,
-      totalBets: 0, // TODO: Calculate from bets
-      totalWagered: 0, // TODO: Calculate from bets
-      marketsCreated: 0 // TODO: Calculate from markets
+      totalBets: user.totalBets || 0,
+      totalWagered: user.totalWagered || 0,
+      marketsCreated: user.marketsCreated || 0
     }))
   },
 
@@ -130,8 +130,8 @@ export const markets = {
       status: market.status as any,
       yesPool: market.yesPool,
       noPool: market.noPool,
-      createdAt: market.createdAt,
-      closesAt: market.closesAt,
+      createdAt: new Date(market.createdAt),
+      closesAt: new Date(market.closesAt),
       createdBy: market.createdBy,
       outcome: market.resolution as any,
       slug: market.slug
@@ -178,8 +178,8 @@ export const markets = {
       status: market.status as any,
       yesPool: market.yesPool,
       noPool: market.noPool,
-      createdAt: market.createdAt,
-      closesAt: market.closesAt,
+      createdAt: new Date(market.createdAt),
+      closesAt: new Date(market.closesAt),
       createdBy: market.createdBy,
       outcome: market.resolution as any,
       slug: market.slug
@@ -249,8 +249,8 @@ export const fomoMarkets = {
       description: fomoMarket.description,
       category: fomoMarket.category,
       status: fomoMarket.status,
-      createdAt: fomoMarket.createdAt,
-      closesAt: fomoMarket.closesAt,
+      createdAt: new Date(fomoMarket.createdAt),
+      closesAt: new Date(fomoMarket.closesAt),
       yesPool: fomoMarket.yesPool,
       noPool: fomoMarket.noPool,
       totalVolume: fomoMarket.totalVolume,
@@ -303,8 +303,8 @@ export const fomoMarkets = {
       description: fomoMarket.description,
       category: fomoMarket.category,
       status: fomoMarket.status,
-      createdAt: fomoMarket.createdAt,
-      closesAt: fomoMarket.closesAt,
+      createdAt: new Date(fomoMarket.createdAt),
+      closesAt: new Date(fomoMarket.closesAt),
       yesPool: fomoMarket.yesPool,
       noPool: fomoMarket.noPool,
       totalVolume: fomoMarket.totalVolume,
@@ -349,8 +349,8 @@ export const fomoMarkets = {
       description: fomoMarket.description,
       category: fomoMarket.category,
       status: fomoMarket.status,
-      createdAt: fomoMarket.createdAt,
-      closesAt: fomoMarket.closesAt,
+      createdAt: new Date(fomoMarket.createdAt),
+      closesAt: new Date(fomoMarket.closesAt),
       yesPool: fomoMarket.yesPool,
       noPool: fomoMarket.noPool,
       totalVolume: fomoMarket.totalVolume,

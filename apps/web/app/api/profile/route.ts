@@ -78,7 +78,13 @@ export async function PATCH(request: NextRequest) {
     }
     
     // Update in storage using the correct wallet address
-    await users.set(userWalletAddress!, user)
+    await prisma.user.update({
+      where: { walletAddress: userWalletAddress! },
+      data: {
+        displayName: user.displayName,
+        profilePicture: user.profilePicture
+      }
+    })
     
     return NextResponse.json({
       id: user.id,
@@ -87,7 +93,11 @@ export async function PATCH(request: NextRequest) {
       profilePicture: user.profilePicture,
       pointsBalance: user.pointsBalance,
       role: user.role,
-      creditedInitial: user.creditedInitial
+      creditedInitial: user.creditedInitial,
+      totalBets: user.totalBets,
+      totalWagered: user.totalWagered,
+      marketsCreated: user.marketsCreated,
+      createdAt: user.createdAt
     })
   } catch (error) {
     console.error('Update profile error:', error)

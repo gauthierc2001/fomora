@@ -75,8 +75,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Check user's market creation limit (3 max)
-    const userMarkets = Array.from(markets.values()).filter(m => m.createdBy === user.id || m.createdBy === user.walletAddress)
-    if (userMarkets.length >= 3) {
+    if (user.marketsCreated >= 3) {
       return NextResponse.json({ error: 'Maximum 3 markets allowed per user' }, { status: 400 })
     }
     
