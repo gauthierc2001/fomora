@@ -100,10 +100,8 @@ export async function POST(
         const updatedUser = await tx.user.update({
           where: { id: user.id },
           data: {
-            pointsBalance: { decrement: amount },
-            totalBets: { increment: 1 },
-            totalWagered: { increment: amount }
-          }
+            pointsBalance: { decrement: amount }
+          } as any
         })
 
         // Update market
@@ -119,7 +117,7 @@ export async function POST(
             updateData.noPool = { increment: netAmount }
           }
           
-          updatedMarket = await tx.fomoMarket.update({
+          updatedMarket = await (tx as any).fomoMarket.update({
             where: { id: market.id },
             data: updateData
           })
@@ -156,9 +154,7 @@ export async function POST(
       // Update memory state with transaction results
       const updatedUserData = {
         ...user,
-        pointsBalance: updatedUser.pointsBalance,
-        totalBets: updatedUser.totalBets,
-        totalWagered: updatedUser.totalWagered
+        pointsBalance: updatedUser.pointsBalance
       }
       await users.set(session.walletAddress, updatedUserData)
       
@@ -222,7 +218,7 @@ export async function POST(
     }
 
   } catch (error) {
-    console.error(`❌ Place bet error at step '${step}':`, error)
+    console.error(`❌ Place bet error:`, error)
     
     // Determine error type and return appropriate response
     if (error instanceof z.ZodError) {
@@ -259,7 +255,6 @@ export async function POST(
       { 
         error: 'Failed to place bet. Please try again.',
         debug: {
-          step,
           message: error instanceof Error ? error.message : 'Unknown error',
           stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : 'No stack') : undefined
         }
