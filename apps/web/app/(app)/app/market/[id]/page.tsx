@@ -114,27 +114,32 @@ export default function MarketPage({ params }: MarketPageProps) {
     }
   })
 
-  const formatOdds = (yesPool: number, noPool: number, side: 'YES' | 'NO') => {
-    const total = yesPool + noPool
-    if (total === 0) return '50%'
-    const probability = side === 'YES' ? yesPool / total : noPool / total
-    return `${Math.round(probability * 100)}%`
-  }
+  // Use the imported formatOdds from utils
 
   const formatTimeUntil = (date: string) => {
-    const now = new Date()
-    const target = new Date(date)
-    const diffMs = target.getTime() - now.getTime()
+    if (!date) return 'Invalid date'
     
-    if (diffMs <= 0) return 'Closed'
-    
-    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
-    
-    if (days > 0) return `${days}d ${hours}h`
-    if (hours > 0) return `${hours}h ${minutes}m`
-    return `${minutes}m`
+    try {
+      const now = new Date()
+      const target = new Date(date)
+      
+      if (isNaN(target.getTime())) return 'Invalid date'
+      
+      const diffMs = target.getTime() - now.getTime()
+      
+      if (diffMs <= 0) return 'Closed'
+      
+      const days = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+      const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
+      
+      if (days > 0) return `${days}d ${hours}h`
+      if (hours > 0) return `${hours}h ${minutes}m`
+      return `${minutes}m`
+    } catch (error) {
+      console.error('Error formatting time:', error)
+      return 'Invalid date'
+    }
   }
 
   const handlePlaceBet = () => {
@@ -261,7 +266,7 @@ export default function MarketPage({ params }: MarketPageProps) {
                 >
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-600">YES</div>
-                    <div className="text-lg font-semibold">{formatOdds(market.yesPool, market.noPool, 'YES')}</div>
+                    <div className="text-lg font-semibold">{formatOdds(market.yesPool, market.noPool).yes}%</div>
                     <div className="text-sm text-muted-foreground">{(market.yesPool || 0).toLocaleString()} points</div>
                   </div>
                 </div>
@@ -274,7 +279,7 @@ export default function MarketPage({ params }: MarketPageProps) {
                 >
                   <div className="text-center">
                     <div className="text-2xl font-bold text-red-600">NO</div>
-                    <div className="text-lg font-semibold">{formatOdds(market.yesPool, market.noPool, 'NO')}</div>
+                    <div className="text-lg font-semibold">{formatOdds(market.yesPool, market.noPool).no}%</div>
                     <div className="text-sm text-muted-foreground">{(market.noPool || 0).toLocaleString()} points</div>
                   </div>
                 </div>
@@ -438,11 +443,11 @@ export default function MarketPage({ params }: MarketPageProps) {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Created</span>
-                <span className="font-semibold">{new Date(market.createdAt).toLocaleDateString()}</span>
+                <span className="font-semibold">{new Date(market.createdAt).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Closes</span>
-                <span className="font-semibold">{new Date(market.closesAt).toLocaleDateString()}</span>
+                <span className="font-semibold">{new Date(market.closesAt).toLocaleString()}</span>
               </div>
             </CardContent>
           </Card>
