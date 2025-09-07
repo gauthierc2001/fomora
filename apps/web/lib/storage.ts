@@ -22,9 +22,9 @@ export type UserType = {
 export type MarketType = {
   id: string
   question: string
-  description?: string
-  category?: string
-  status: 'OPEN' | 'CLOSED' | 'RESOLVED'
+  description?: string | null
+  category?: string | null
+  status: 'OPEN' | 'CLOSED' | 'RESOLVED' | 'CANCELLED'
   yesPool: number
   noPool: number
   createdAt: Date
@@ -32,7 +32,7 @@ export type MarketType = {
   createdBy: string
   outcome?: 'YES' | 'NO'
   slug: string
-  image?: string
+  image?: string | null
 }
 
 export type BetType = {

@@ -41,7 +41,7 @@ export async function POST(
     
     if (!market) {
       // Try FOMO market
-      const fomoMarket = await prisma.fomoMarket.findUnique({ where: { id: marketId } })
+      const fomoMarket = await (prisma as any).fomoMarket.findUnique({ where: { id: marketId } })
       if (fomoMarket) {
         market = fomoMarket
         isFomoMarket = true
@@ -81,7 +81,7 @@ export async function POST(
               closesAt: market.closesAt,
               yesPool: market.yesPool,
               noPool: market.noPool,
-              image: market.image
+              // image: market.image // Removed to fix schema mismatch
             }
           })
           console.log('Successfully created corresponding Market entry')
@@ -106,7 +106,7 @@ export async function POST(
       console.log(`Market has closed at ${closingTime}, current time: ${now}`)
       // Update market status in database
       if (isFomoMarket) {
-        await prisma.fomoMarket.update({
+        await (prisma as any).fomoMarket.update({
           where: { id: market.id },
           data: { status: 'CLOSED' }
         })
@@ -191,7 +191,6 @@ export async function POST(
 
         // Create bet (always references the Market table, even for FOMO markets)
         console.log('Creating bet with:', {
-          betId,
           userId: user.id,
           marketId: actualMarketId,
           side,
@@ -206,7 +205,7 @@ export async function POST(
             side: side,
             amount: amount,
             fee: penaltyFee,
-            marketType: isFomoMarket ? 'FOMO' : 'REGULAR',
+            // marketType: isFomoMarket ? 'FOMO' : 'REGULAR', // Temporarily removed until schema is deployed
             createdAt: new Date()
           }
         })
@@ -243,7 +242,7 @@ export async function POST(
         amount: newBet.amount,
         createdAt: newBet.createdAt
       }
-      await bets.set(betId, betData)
+      await bets.set(newBet.id, betData)
 
       // Log action
       await logAction('BET', {
@@ -260,7 +259,7 @@ export async function POST(
 
       return NextResponse.json({
         success: true,
-        betId,
+        betId: newBet.id,
         newBalance: updatedUser.pointsBalance,
         marketPools: {
           yesPool: updatedMarket.yesPool,
