@@ -249,7 +249,7 @@ export default function FomoMarketsPage() {
                   
                   <div className="flex justify-between items-center">
                     <div className="text-xs text-muted-foreground">
-                      Created by {market.creator.walletAddress === 'FOMO System' ? 'FOMO System' : `${market.creator.walletAddress.slice(0, 4)}...${market.creator.walletAddress.slice(-4)}`}
+                      Created by {market.creator?.walletAddress === 'FOMO System' ? 'FOMO System' : market.creator?.walletAddress ? `${market.creator.walletAddress.slice(0, 4)}...${market.creator.walletAddress.slice(-4)}` : 'System'}
                     </div>
                     
                     <Button variant="outline" size="sm" asChild className="border-orange-300 hover:bg-orange-50">

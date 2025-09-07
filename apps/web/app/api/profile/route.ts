@@ -26,7 +26,8 @@ export async function PATCH(request: NextRequest) {
     
     // If not found, search by session ID
     if (!user) {
-      for (const [walletAddress, userData] of users.entries()) {
+      const allUsers = await users.entries()
+      for (const [walletAddress, userData] of allUsers) {
         if (userData.id === session.id) {
           user = userData
           userWalletAddress = walletAddress
@@ -52,7 +53,7 @@ export async function PATCH(request: NextRequest) {
         totalWagered: 0,
         marketsCreated: 0
       }
-      users.set(session.walletAddress, newUser)
+      await users.set(session.walletAddress, newUser)
       user = newUser
       userWalletAddress = session.walletAddress
     }
@@ -77,7 +78,7 @@ export async function PATCH(request: NextRequest) {
     }
     
     // Update in storage using the correct wallet address
-    users.set(userWalletAddress!, user)
+    await users.set(userWalletAddress!, user)
     
     return NextResponse.json({
       id: user.id,
@@ -105,12 +106,13 @@ export async function GET(request: NextRequest) {
     }
     
     // First try to find user by wallet address (primary key)
-    let user = users.get(session.walletAddress)
+    let user = await users.get(session.walletAddress)
     let userWalletAddress = session.walletAddress
     
     // If not found, search by session ID
     if (!user) {
-      for (const [walletAddress, userData] of users.entries()) {
+      const allUsers = await users.entries()
+      for (const [walletAddress, userData] of allUsers) {
         if (userData.id === session.id) {
           user = userData
           userWalletAddress = walletAddress
@@ -136,7 +138,7 @@ export async function GET(request: NextRequest) {
         totalWagered: 0,
         marketsCreated: 0
       }
-      users.set(session.walletAddress, newUser)
+      await users.set(session.walletAddress, newUser)
       user = newUser
       userWalletAddress = session.walletAddress
     }
@@ -151,7 +153,7 @@ export async function GET(request: NextRequest) {
     if (!user.createdAt) user.createdAt = new Date()
     
     // Update in storage to persist migration
-    users.set(userWalletAddress!, user)
+    await users.set(userWalletAddress!, user)
     
     return NextResponse.json({
       id: user.id,

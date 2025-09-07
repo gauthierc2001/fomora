@@ -222,7 +222,7 @@ export default function MarketPage({ params }: MarketPageProps) {
                 </div>
                 <div className="flex items-center gap-1">
                   <DollarSign className="h-4 w-4" />
-                  {totalVolume.toLocaleString()} points wagered
+                  {(totalVolume || 0).toLocaleString()} points wagered
                 </div>
               </div>
             </div>
@@ -262,7 +262,7 @@ export default function MarketPage({ params }: MarketPageProps) {
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-600">YES</div>
                     <div className="text-lg font-semibold">{formatOdds(market.yesPool, market.noPool, 'YES')}</div>
-                    <div className="text-sm text-muted-foreground">{market.yesPool.toLocaleString()} points</div>
+                    <div className="text-sm text-muted-foreground">{(market.yesPool || 0).toLocaleString()} points</div>
                   </div>
                 </div>
                 
@@ -275,7 +275,7 @@ export default function MarketPage({ params }: MarketPageProps) {
                   <div className="text-center">
                     <div className="text-2xl font-bold text-red-600">NO</div>
                     <div className="text-lg font-semibold">{formatOdds(market.yesPool, market.noPool, 'NO')}</div>
-                    <div className="text-sm text-muted-foreground">{market.noPool.toLocaleString()} points</div>
+                    <div className="text-sm text-muted-foreground">{(market.noPool || 0).toLocaleString()} points</div>
                   </div>
                 </div>
               </div>
@@ -426,15 +426,15 @@ export default function MarketPage({ params }: MarketPageProps) {
             <CardContent className="space-y-4">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Total Volume</span>
-                <span className="font-semibold">{totalVolume.toLocaleString()} pts</span>
+                        <span className="font-semibold">{(totalVolume || 0).toLocaleString()} pts</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">YES Pool</span>
-                <span className="font-semibold text-green-600">{market.yesPool.toLocaleString()} pts</span>
+                <span className="font-semibold text-green-600">{(market.yesPool || 0).toLocaleString()} pts</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">NO Pool</span>
-                <span className="font-semibold text-red-600">{market.noPool.toLocaleString()} pts</span>
+                <span className="font-semibold text-red-600">{(market.noPool || 0).toLocaleString()} pts</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Created</span>
