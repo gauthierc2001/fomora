@@ -33,11 +33,17 @@ export default function MarketPage({ params }: MarketPageProps) {
     },
     retry: 2, // Retry failed requests twice
     retryDelay: 1000, // Wait 1 second between retries
-    refetchInterval: 5000, // Refetch every 5 seconds
-    refetchIntervalInBackground: true // Refetch even when tab is in background
+    refetchInterval: 3000, // Refetch every 3 seconds
+    refetchIntervalInBackground: true, // Refetch even when tab is in background
+    staleTime: 0, // Consider data immediately stale
+    cacheTime: 0, // Don't cache data
   })
 
   const { data: user } = useQuery({
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true,
+    staleTime: 0,
+    cacheTime: 0,
     queryKey: ['user'],
     queryFn: async () => {
       const response = await fetch('/api/me')
@@ -52,6 +58,10 @@ export default function MarketPage({ params }: MarketPageProps) {
   })
 
   const { data: userBets, refetch: refetchUserBets } = useQuery({
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true,
+    staleTime: 0,
+    cacheTime: 0,
     queryKey: ['userBets', id],
     queryFn: async () => {
       const response = await fetch(`/api/markets/${id}/user-bets`)
@@ -107,13 +117,15 @@ export default function MarketPage({ params }: MarketPageProps) {
       setSelectedSide(null)
     },
     onError: (err, variables, context) => {
+      console.error('Bet mutation error:', err)
       // Rollback on error
       if (context?.previousMarket) {
         queryClient.setQueryData(['market', id], context.previousMarket)
       }
-    },
-    onError: (error) => {
-      console.error('Bet mutation error:', error)
+      // Invalidate queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ['market', id] })
+      queryClient.invalidateQueries({ queryKey: ['user'] })
+      queryClient.invalidateQueries({ queryKey: ['userBets', id] })
     }
   })
 

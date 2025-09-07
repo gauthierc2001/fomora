@@ -93,9 +93,9 @@ export async function POST(
 
     // Process bet in transaction
     try {
-      await prisma.$transaction(async (tx) => {
+      const [updatedUser, updatedMarket, newBet] = await prisma.$transaction(async (tx) => {
         // Update user
-        await tx.user.update({
+        const updatedUser = await tx.user.update({
           where: { id: user.id },
           data: {
             pointsBalance: { decrement: amount },
@@ -105,8 +105,9 @@ export async function POST(
         })
 
         // Update market
+        let updatedMarket
         if (await fomoMarkets.has(market.id)) {
-          await tx.fomoMarket.update({
+          updatedMarket = await tx.fomoMarket.update({
             where: { id: market.id },
             data: {
               yesPool: side === 'YES' ? { increment: netAmount } : undefined,
@@ -116,45 +117,43 @@ export async function POST(
             }
           })
         } else {
-          await tx.market.update({
+          updatedMarket = await tx.market.update({
             where: { id: market.id },
             data: {
               yesPool: side === 'YES' ? { increment: netAmount } : undefined,
-              noPool: side === 'NO' ? { increment: netAmount } : undefined
+              noPool: side === 'NO' ? { increment: netAmount } : undefined,
+              totalVolume: { increment: netAmount }
             }
           })
         }
 
         // Create bet
-        await tx.bet.create({
+        const newBet = await tx.bet.create({
           data: {
             id: betId,
             userId: user.id,
             marketId: market.id,
             side: side,
             amount: amount,
-            fee: penaltyFee
+            fee: penaltyFee,
+            createdAt: new Date()
           }
         })
+
+        return [updatedUser, updatedMarket, newBet]
       })
 
-      // Update memory state after successful transaction
-      user.pointsBalance -= amount
-      user.totalBets += 1
-      user.totalWagered += amount
-      await users.set(session.walletAddress, user)
-
-      if (side === 'YES') {
-        market.yesPool += netAmount
-      } else {
-        market.noPool += netAmount
-      }
+      // Update memory state with transaction results
+      await users.set(session.walletAddress, updatedUser)
       
       if (await fomoMarkets.has(market.id)) {
-        await fomoMarkets.set(market.id, market)
+        await fomoMarkets.set(market.id, updatedMarket)
       } else {
-        await markets.set(market.id, market)
+        await markets.set(market.id, updatedMarket)
       }
+
+      // Update bet cache
+      await bets.set(betId, newBet)
 
       // Log action
       await logAction('BET', {
@@ -188,8 +187,40 @@ export async function POST(
 
   } catch (error) {
     console.error('Place bet error:', error)
+    
+    // Determine error type and return appropriate response
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid bet parameters', details: error.errors },
+        { status: 400 }
+      )
+    }
+    
+    if (error instanceof Error) {
+      // Check for specific error messages
+      if (error.message.includes('not found')) {
+        return NextResponse.json(
+          { error: error.message },
+          { status: 404 }
+        )
+      }
+      if (error.message.includes('insufficient') || error.message.includes('closed')) {
+        return NextResponse.json(
+          { error: error.message },
+          { status: 400 }
+        )
+      }
+      
+      // Log detailed error info
+      console.error('Detailed error:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      })
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to place bet' },
+      { error: 'Failed to place bet. Please try again.' },
       { status: 500 }
     )
   } finally {
