@@ -206,6 +206,7 @@ export async function POST(
             side: side,
             amount: amount,
             fee: penaltyFee,
+            marketType: isFomoMarket ? 'FOMO' : 'REGULAR',
             createdAt: new Date()
           }
         })

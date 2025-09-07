@@ -95,17 +95,18 @@ model Market {
 }
 
 model Bet {
-  id        String   @id @default(cuid())
-  marketId  String
-  userId    String
-  side      BetSide
-  amount    Int
-  fee       Int
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  marketId   String
+  userId     String
+  side       BetSide
+  amount     Int
+  fee        Int
+  marketType String   @default("REGULAR") // "REGULAR" or "FOMO"
+  createdAt  DateTime @default(now())
 
-  // Relations
-  market Market @relation(fields: [marketId], references: [id])
-  user   User   @relation(fields: [userId], references: [id])
+  // Relations - market relation is optional to support FOMO markets
+  market Market? @relation(fields: [marketId], references: [id], onDelete: Cascade)
+  user   User    @relation(fields: [userId], references: [id])
 
   @@map("bets")
 }
