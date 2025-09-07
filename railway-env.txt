@@ -1,0 +1,10 @@
+# Railway Environment Variables
+# Copy these to Railway Dashboard → Variables
+
+DATABASE_URL=postgresql://postgres:h9iD9ejrgh*#vAv@db.klucdodkixhvbwahprev.supabase.co:5432/postgres
+JWT_SECRET=FoMoRa2025PredictionMarketJWTSecretKey48HourTestBetOnInternet
+TEST_START_ISO=2025-01-15T12:00:00.000Z
+TEST_HOURS=48
+NEXT_PUBLIC_SOLANA_NETWORK=devnet
+NODE_ENV=production
+PORT=3000
