@@ -4,6 +4,11 @@ import { NextRequest } from 'next/server'
 import { prisma } from '@fomora/db'
 import { createHash } from 'crypto'
 
+// Validate JWT_SECRET in production
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required in production')
+}
+
 const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret-for-dev')
 
 export interface SessionUser {
@@ -20,14 +25,18 @@ export async function createSession(user: SessionUser) {
     .setExpirationTime('24h')
     .sign(secret)
 
-  cookies().set('session', token, {
+  const isProduction = process.env.NODE_ENV === 'production'
+  const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // Secure in production, allow HTTP for localhost
-    sameSite: 'lax',
+    secure: isProduction,
+    sameSite: 'lax' as const,
     maxAge: 60 * 60 * 24, // 24 hours
     path: '/',
-    domain: undefined // Don't set domain for localhost
-  })
+    // Don't set domain in production to allow cookies to work across subdomains
+    ...(isProduction ? {} : { domain: undefined })
+  }
+
+  cookies().set('session', token, cookieOptions)
 
   return token
 }

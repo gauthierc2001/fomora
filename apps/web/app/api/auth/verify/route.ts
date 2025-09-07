@@ -11,6 +11,10 @@ import { users } from '@/lib/storage'
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('POST /api/auth/verify - starting authentication...')
+    console.log('Environment:', process.env.NODE_ENV)
+    console.log('Request headers:', Object.fromEntries(request.headers.entries()))
+    
     const body = await request.json()
     const { walletAddress } = requestSchema.parse(body)
     
@@ -19,7 +23,14 @@ export async function POST(request: NextRequest) {
     // No database required - just in-memory storage for demo
     const ipHash = hashIP(getClientIP(request))
     
-    let user = await users.get(walletAddress)
+    let user
+    try {
+      user = await users.get(walletAddress)
+      console.log('Database query successful for wallet:', walletAddress.slice(0, 8) + '...')
+    } catch (dbError) {
+      console.error('Database error when fetching user:', dbError)
+      throw new Error(`Database connection failed: ${dbError instanceof Error ? dbError.message : 'Unknown database error'}`)
+    }
     
     if (!user) {
       user = {
@@ -36,21 +47,31 @@ export async function POST(request: NextRequest) {
         totalWagered: 0,
         marketsCreated: 0
       }
-      await users.set(walletAddress, user)
-      console.log('Created new user:', walletAddress.slice(0, 8) + '...')
+      try {
+        await users.set(walletAddress, user)
+        console.log('Created new user:', walletAddress.slice(0, 8) + '...')
+      } catch (dbError) {
+        console.error('Database error when creating user:', dbError)
+        throw new Error(`Failed to create user: ${dbError instanceof Error ? dbError.message : 'Unknown database error'}`)
+      }
     } else {
       console.log('Found existing user:', walletAddress.slice(0, 8) + '...')
     }
     
     // Create session
-    const sessionToken = await createSession({
-      id: user.id,
-      walletAddress: user.walletAddress,
-      role: user.role,
-      pointsBalance: user.pointsBalance
-    })
-    
-    console.log('Session created for user:', user.walletAddress.slice(0, 8) + '...')
+    let sessionToken
+    try {
+      sessionToken = await createSession({
+        id: user.id,
+        walletAddress: user.walletAddress,
+        role: user.role,
+        pointsBalance: user.pointsBalance
+      })
+      console.log('Session created for user:', user.walletAddress.slice(0, 8) + '...')
+    } catch (sessionError) {
+      console.error('Session creation error:', sessionError)
+      throw new Error(`Failed to create session: ${sessionError instanceof Error ? sessionError.message : 'Unknown session error'}`)
+    }
     
     const response = NextResponse.json({
       success: true,
@@ -64,12 +85,15 @@ export async function POST(request: NextRequest) {
     })
     
     // Set cookie manually as backup
+    const isProduction = process.env.NODE_ENV === 'production'
     response.cookies.set('session', sessionToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Secure in production, allow HTTP for localhost
+      secure: isProduction,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24, // 24 hours
-      path: '/'
+      path: '/',
+      // Don't set domain in production to allow cookies to work across subdomains
+      ...(isProduction ? {} : { domain: undefined })
     })
     
     return response
