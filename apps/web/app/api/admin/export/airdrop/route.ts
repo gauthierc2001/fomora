@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       action: 'airdrop_export',
       eligibleUsers: eligibilityData.length,
       totalPoints: eligibilityData.reduce((sum, user) => sum + user.finalBalance, 0)
-    }, session.id, request)
+    }, session.walletAddress, request)
     
     return new NextResponse(csvContent, {
       headers: {
