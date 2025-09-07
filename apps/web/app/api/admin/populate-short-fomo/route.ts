@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { populateShortFomoMarkets } from '../../../scripts/populate-short-fomo-markets'
+import { populateShortFomoMarkets } from '@/lib/populate-short-fomo-markets'
 
 export async function POST(request: NextRequest) {
   try {

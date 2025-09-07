@@ -62,36 +62,7 @@ export async function POST(
     // For FOMO markets, we need to create a corresponding entry in the Market table for betting
     let actualMarketId = market.id
     if (isFomoMarket) {
-      console.log('FOMO market detected, checking for corresponding Market entry...')
-      
-      // Check if a corresponding Market entry exists
-      const correspondingMarket = await prisma.market.findUnique({ where: { id: marketId } })
-      if (!correspondingMarket) {
-        // Create a corresponding Market entry for the FOMO market
-        console.log('Creating corresponding Market entry for FOMO market...')
-        try {
-          await prisma.market.create({
-            data: {
-              id: market.id,
-              slug: market.slug || market.id,
-              question: market.question,
-              description: market.description,
-              category: market.category,
-              createdBy: market.createdBy || 'fomo-system',
-              status: market.status === 'OPEN' ? 'OPEN' : 'CLOSED', // Convert string to MarketStatus enum
-              closesAt: market.closesAt,
-              yesPool: market.yesPool,
-              noPool: market.noPool,
-              createFee: 0, // FOMO markets don't have creation fees
-              // image: market.image // Removed to fix schema mismatch
-            }
-          })
-          console.log('Successfully created corresponding Market entry')
-        } catch (error) {
-          console.error('Failed to create corresponding Market entry:', error)
-          // If it already exists, continue anyway
-        }
-      }
+      console.log('FOMO market detected - will create corresponding Market entry in transaction')
     }
 
     // Validate market status
@@ -177,6 +148,38 @@ export async function POST(
     step = 'starting transaction'
     try {
       const [updatedUser, updatedMarket, newBet] = await prisma.$transaction(async (tx) => {
+        // For FOMO markets, ensure corresponding Market entry exists
+        if (isFomoMarket) {
+          console.log('Creating/updating corresponding Market entry for FOMO market in transaction...')
+          try {
+            await tx.market.upsert({
+              where: { id: market.id },
+              create: {
+                id: market.id,
+                slug: market.slug || market.id,
+                question: market.question,
+                description: market.description,
+                category: market.category,
+                createdBy: market.createdBy || 'fomo-system',
+                status: market.status === 'OPEN' ? 'OPEN' : 'CLOSED',
+                closesAt: market.closesAt,
+                yesPool: market.yesPool,
+                noPool: market.noPool,
+                createFee: 0
+              },
+              update: {
+                yesPool: market.yesPool,
+                noPool: market.noPool,
+                status: market.status === 'OPEN' ? 'OPEN' : 'CLOSED'
+              }
+            })
+            console.log('Successfully created/updated corresponding Market entry')
+          } catch (error) {
+            console.error('Failed to create/update Market entry:', error)
+            throw error
+          }
+        }
+
         // Update user
         const updatedUser = await tx.user.update({
           where: { id: user.id },
@@ -204,7 +207,7 @@ export async function POST(
             data: fomoUpdateData
           })
           
-          // Also update the corresponding Market table for consistency
+          // Update the corresponding Market table for consistency
           const marketUpdateData: any = {}
           if (side === 'YES') {
             marketUpdateData.yesPool = { increment: netAmount }
@@ -212,14 +215,10 @@ export async function POST(
             marketUpdateData.noPool = { increment: netAmount }
           }
           
-          try {
-            await tx.market.update({
-              where: { id: market.id },
-              data: marketUpdateData
-            })
-          } catch (error) {
-            console.log('No corresponding Market entry found for FOMO market - this is expected')
-          }
+          await tx.market.update({
+            where: { id: market.id },
+            data: marketUpdateData
+          })
         } else {
           const updateData: any = {}
           if (side === 'YES') {
