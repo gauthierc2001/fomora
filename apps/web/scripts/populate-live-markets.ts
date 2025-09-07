@@ -1,4 +1,15 @@
-import { fomoMarkets } from '../lib/storage'
+import { prisma } from '@fomora/db'
+
+// Initialize markets directly with Prisma
+const fomoMarkets = {
+  async set(id: string, data: any) {
+    return prisma.fomoMarket.upsert({
+      where: { id },
+      create: data,
+      update: data
+    })
+  }
+}
 import { createHash } from 'crypto'
 
 function createMarketId(question: string, category: string): string {
