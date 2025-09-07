@@ -2,5 +2,10 @@
   "buildCommand": "pnpm --filter=@fomora/web build",
   "installCommand": "pnpm install --no-frozen-lockfile",
   "outputDirectory": "apps/web/.next",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "functions": {
+    "apps/web/app/api/**/*.ts": {
+      "runtime": "nodejs18.x"
+    }
+  }
 }
