@@ -1,7 +1,10 @@
 import { PrismaClient, Role } from '@prisma/client'
 import { createHash } from 'crypto'
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+  log: ['error'],
+  datasourceUrl: process.env.DATABASE_URL
+})
 
 // Test window: Current time + 48 hours
 const TEST_START = new Date() // Now

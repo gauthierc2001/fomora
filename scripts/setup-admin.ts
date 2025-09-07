@@ -8,7 +8,10 @@
 import { PrismaClient, Role } from '@fomora/db'
 import { createHash } from 'crypto'
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+  log: ['error'],
+  datasourceUrl: process.env.DATABASE_URL
+})
 
 async function createAdmin(walletAddress: string) {
   try {
