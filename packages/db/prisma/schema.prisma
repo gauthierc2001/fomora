@@ -53,6 +53,13 @@ model User {
   pointsBalance   Int      @default(0)
   creditedInitial Boolean  @default(false)
   role            Role     @default(USER)
+  
+  // Leaderboard fields
+  displayName     String?
+  profilePicture  String?
+  totalBets       Int      @default(0)
+  totalWagered    Int      @default(0)
+  marketsCreated  Int      @default(0)
 
   // Relations
   marketsCreated Market[]
@@ -68,6 +75,7 @@ model Market {
   question    String
   description String?
   category    String?
+  image       String?
   createdBy   String
   status      MarketStatus @default(OPEN)
   closesAt    DateTime
@@ -128,6 +136,7 @@ model FomoMarket {
   question    String
   description String?
   category    String?
+  image       String?
   status      String   @default("OPEN")
   createdAt   DateTime @default(now())
   closesAt    DateTime
@@ -137,6 +146,7 @@ model FomoMarket {
   participants Int     @default(0)
   trending    Boolean  @default(false)
   slug        String   @unique
+  createdBy   String   @default("fomo-system")
 
   @@map("fomo_markets")
 }
