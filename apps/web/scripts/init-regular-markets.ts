@@ -2,7 +2,7 @@ import { prisma } from '@fomora/db'
 import { validateMarket, validateClosingTime, isTimeSensitive } from '@/lib/market-validator'
 import { getMarketImage } from '@/lib/market-images'
 import { createHash } from 'crypto'
-import { MarketStatus } from '@prisma/client'
+import { MarketStatus } from '@fomora/db'
 
 async function getCryptoPrices() {
   try {
