@@ -30,7 +30,7 @@ export async function POST(
     console.log(`Parsed bet: ${amount} points on ${side} for market ${marketId}`)
 
     // Get market from both regular and FOMO markets
-    let market = markets.get(marketId) || fomoMarkets.get(marketId)
+    let market = await markets.get(marketId) || await fomoMarkets.get(marketId)
     console.log('Market found:', !!market)
     
     // If market not found, try fallback for old IDs
@@ -94,7 +94,7 @@ export async function POST(
     }
 
     // Get user
-    const user = users.get(session.walletAddress)
+    const user = await users.get(session.walletAddress)
     console.log('User found:', !!user)
     console.log('User balance:', user?.pointsBalance)
     if (!user) {
@@ -103,7 +103,7 @@ export async function POST(
     }
 
     // Re-check user balance just before deduction (prevent race conditions)
-    const currentUser = users.get(session.walletAddress)
+    const currentUser = await users.get(session.walletAddress)
     if (!currentUser || currentUser.pointsBalance < amount) {
       console.log(`Insufficient balance at execution: ${currentUser?.pointsBalance || 0} < ${amount}`)
       return NextResponse.json({ error: 'Insufficient points' }, { status: 400 })

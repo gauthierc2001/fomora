@@ -339,6 +339,25 @@ export const fomoMarkets = {
   async forEach(callback: (value: any, key: string) => void): Promise<void> {
     const fomoMarkets = await this.values()
     fomoMarkets.forEach(fomoMarket => callback(fomoMarket, fomoMarket.id))
+  },
+
+  async values(): Promise<any[]> {
+    const fomoMarkets = await prisma.fomoMarket.findMany()
+    return fomoMarkets.map(fomoMarket => ({
+      id: fomoMarket.id,
+      question: fomoMarket.question,
+      description: fomoMarket.description,
+      category: fomoMarket.category,
+      status: fomoMarket.status,
+      createdAt: fomoMarket.createdAt,
+      closesAt: fomoMarket.closesAt,
+      yesPool: fomoMarket.yesPool,
+      noPool: fomoMarket.noPool,
+      totalVolume: fomoMarket.totalVolume,
+      participants: fomoMarket.participants,
+      trending: fomoMarket.trending,
+      slug: fomoMarket.slug
+    }))
   }
 }
 

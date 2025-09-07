@@ -17,11 +17,12 @@ export async function POST(request: NextRequest) {
     }
     
     // Only initialize if no markets exist
-    if (markets.size > 0) {
-      console.log(`Markets already exist: ${markets.size} markets`)
+    const marketCount = await markets.size()
+    if (marketCount > 0) {
+      console.log(`Markets already exist: ${marketCount} markets`)
       return NextResponse.json({
         message: 'Markets already initialized',
-        count: markets.size
+        count: marketCount
       })
     }
     
