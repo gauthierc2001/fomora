@@ -5,7 +5,10 @@ nixPkgs = ['nodejs_20', 'npm']
 cmds = ['npm install --legacy-peer-deps']
 
 [phases.build]
-cmds = ['npm run build']
+cmds = [
+  'cd packages/db && npm run db:generate',
+  'cd apps/web && npm run build'
+]
 
 [start]
-cmd = 'npm start'
+cmd = 'cd apps/web && npm start'

@@ -6,11 +6,9 @@ cmds = ['pnpm install --no-frozen-lockfile']
 
 [phases.build]
 cmds = [
-  'ls -la',
-  'pwd',
-  'cat turbo.json',
-  'pnpm build'
+  'cd packages/db && pnpm db:generate',
+  'cd apps/web && pnpm build'
 ]
 
 [start]
-cmd = 'pnpm start'
+cmd = 'cd apps/web && pnpm start'
