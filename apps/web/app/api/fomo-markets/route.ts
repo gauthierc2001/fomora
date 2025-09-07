@@ -9,7 +9,7 @@ const querySchema = z.object({
   page: z.string().optional().default('1'),
   limit: z.string().optional().default('20'),
   category: z.string().optional(),
-  status: z.enum(['OPEN', 'CLOSED', 'RESOLVED', 'CANCELLED']).optional(),
+  status: z.string().optional(),
   search: z.string().optional()
 })
 
