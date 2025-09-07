@@ -69,26 +69,38 @@ export function calculatePotentialEarnings(
   currentYesPool: number,
   currentNoPool: number
 ): { potentialEarnings: number; impliedOdds: number; breakEvenPoint: number } {
+  // Ensure inputs are numbers and non-negative
+  betAmount = Math.max(0, Number(betAmount) || 0)
+  currentYesPool = Math.max(0, Number(currentYesPool) || 0)
+  currentNoPool = Math.max(0, Number(currentNoPool) || 0)
+
   // Calculate what pools would be after this bet
   const newYesPool = betSide === 'YES' ? currentYesPool + betAmount : currentYesPool
   const newNoPool = betSide === 'NO' ? currentNoPool + betAmount : currentNoPool
   
   // Calculate potential payout if user wins
   const potentialPayout = calculatePayout(betAmount, betSide, newYesPool, newNoPool, betSide)
-  const potentialEarnings = potentialPayout - betAmount
+  const potentialEarnings = Math.max(0, potentialPayout - betAmount)
   
   // Calculate implied probability (market's assessment of likelihood)
   const totalPool = newYesPool + newNoPool
-  const impliedOdds = totalPool > 0 ? 
-    (betSide === 'YES' ? (newNoPool / totalPool) * 100 : (newYesPool / totalPool) * 100) : 50
+  let impliedOdds = 50
+  if (totalPool > 0) {
+    impliedOdds = betSide === 'YES' ? 
+      (newNoPool / totalPool) * 100 : 
+      (newYesPool / totalPool) * 100
+  }
   
-  // Calculate break-even point (what probability user needs to be profitable)
-  const breakEvenPoint = totalPool > 0 ? (betAmount / potentialPayout) * 100 : 50
+  // Calculate break-even point
+  let breakEvenPoint = 50
+  if (potentialPayout > 0) {
+    breakEvenPoint = (betAmount / potentialPayout) * 100
+  }
   
   return {
-    potentialEarnings: Math.max(0, potentialEarnings),
-    impliedOdds: Math.round(impliedOdds * 10) / 10,
-    breakEvenPoint: Math.round(breakEvenPoint * 10) / 10
+    potentialEarnings,
+    impliedOdds: Math.round(Math.max(0, Math.min(100, impliedOdds)) * 10) / 10,
+    breakEvenPoint: Math.round(Math.max(0, Math.min(100, breakEvenPoint)) * 10) / 10
   }
 }
 

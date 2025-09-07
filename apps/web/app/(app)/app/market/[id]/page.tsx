@@ -76,6 +76,26 @@ export default function MarketPage({ params }: MarketPageProps) {
       console.log('✅ Bet successful:', result)
       return result
     },
+    onMutate: async ({ side, amount }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['market', id] })
+
+      // Snapshot the previous value
+      const previousMarket = queryClient.getQueryData(['market', id])
+
+      // Optimistically update market pools
+      queryClient.setQueryData(['market', id], (old: any) => {
+        if (!old) return old
+        const netAmount = Math.floor(amount * 0.99) // 1% fee
+        return {
+          ...old,
+          yesPool: side === 'YES' ? (old.yesPool || 0) + netAmount : old.yesPool,
+          noPool: side === 'NO' ? (old.noPool || 0) + netAmount : old.noPool
+        }
+      })
+
+      return { previousMarket }
+    },
     onSuccess: (data) => {
       console.log('Bet mutation success, invalidating queries...')
       queryClient.invalidateQueries({ queryKey: ['market', id] })
@@ -83,6 +103,12 @@ export default function MarketPage({ params }: MarketPageProps) {
       refetchUserBets()
       setBetAmount('')
       setSelectedSide(null)
+    },
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousMarket) {
+        queryClient.setQueryData(['market', id], context.previousMarket)
+      }
     },
     onError: (error) => {
       console.error('Bet mutation error:', error)
@@ -304,7 +330,7 @@ export default function MarketPage({ params }: MarketPageProps) {
                   
                   {betAmount && selectedSide && market && (
                     (() => {
-                      const amount = parseInt(betAmount || '0')
+                      const amount = Math.max(0, Number(betAmount) || 0)
                       if (amount <= 0) return null
                       
                       const earnings = calculatePotentialEarnings(
