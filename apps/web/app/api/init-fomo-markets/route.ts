@@ -34,7 +34,23 @@ function getMarketImage(category: string): string {
   return `${baseUrl}/${color}/FFFFFF?text=${encodeURIComponent(category)}`
 }
 
+async function getCryptoPrices() {
+  const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd')
+  if (!response.ok) {
+    throw new Error('Failed to fetch crypto prices')
+  }
+  const data = await response.json()
+  return {
+    bitcoin: data.bitcoin?.usd,
+    ethereum: data.ethereum?.usd,
+    solana: data.solana?.usd
+  }
+}
+
 async function createLiveMarkets() {
+  // Fetch current crypto prices
+  const prices = await getCryptoPrices()
+  const btcPrice = prices.bitcoin || 43000 // Fallback price if API fails
   const now = new Date()
   const in24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000)
   const in48Hours = new Date(now.getTime() + 48 * 60 * 60 * 1000)
@@ -42,8 +58,8 @@ async function createLiveMarkets() {
 
   const liveMarkets = [
     {
-      question: "Will Bitcoin break $50K this week?",
-      description: "Bitcoin needs to reach or exceed $50,000 on any major exchange (Binance, Coinbase) before market close.",
+      question: `Will Bitcoin break $${Math.ceil((btcPrice * 1.15) / 1000) * 1000} this week?`,
+      description: `Bitcoin needs to reach or exceed $${Math.ceil((btcPrice * 1.15) / 1000) * 1000} (current: $${Math.round(btcPrice)}) on any major exchange before market close.`,
       category: "Crypto",
       closesAt: in72Hours,
       initialPool: 5000
@@ -56,8 +72,8 @@ async function createLiveMarkets() {
       initialPool: 3000
     },
     {
-      question: "Will Solana flip Ethereum in daily transactions?",
-      description: "Solana's daily transaction count must exceed Ethereum's for at least 1 hour according to public blockchain data.",
+      question: `Will Solana reach $${Math.ceil((prices.solana * 1.25) / 1) * 1} in 24h?`,
+      description: `Solana price must reach or exceed $${Math.ceil((prices.solana * 1.25) / 1) * 1} (current: $${Math.round(prices.solana)}) on major exchanges within 24 hours.`,
       category: "Crypto",
       closesAt: in24Hours,
       initialPool: 4000
