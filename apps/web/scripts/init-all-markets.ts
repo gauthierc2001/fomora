@@ -1,5 +1,9 @@
 import { createHash } from 'crypto'
-import { prisma } from '@fomora/db'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient({
+  datasourceUrl: "postgresql://postgres:OPFJYsSxfQMvHUlQlKpJpzWjjiJSVkUr@shinkansen.proxy.rlwy.net:57939/railway"
+})
 
 async function getCryptoPrices() {
   try {
